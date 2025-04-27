@@ -1,0 +1,83 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+
+.modal-content {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.score-section {
+  margin: 20px 0;
+}
+
+.score-table-child-header{
+  height:30px;
+}
+.score-table-child-box{
+  height: 40px;
+  padding:0px 10px;
+}
+
+
+.score-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-input,
+.modal-textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+.time-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-fields {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.time-field {
+  width: 50px;
+  text-align: center;
+  margin: 0 5px;
+  border:solid 1px #ccc;
+}

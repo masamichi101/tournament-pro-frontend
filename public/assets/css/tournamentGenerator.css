@@ -1,0 +1,207 @@
+/* トーナメント全体のスタイル */
+.tournament-container {
+  padding: 20px;
+}
+
+/* 横スクロールボックス */
+.tournament-box {
+  overflow-x: auto; /* 横スクロールを有効に */
+  white-space: nowrap; /* 水平レイアウトを維持 */
+  border: #007bff solid 1px;
+  border-radius: 20px;
+  padding: 10px;
+  max-width: 100%;
+}
+
+/* トーナメント階層 */
+.tournament {
+  display: flex; /* 階層を横に並べる */
+  align-items: flex-start; /* 各レベルのヘッダーを揃える */
+  gap: 46px; /* 階層間のスペース */
+
+}
+
+.tournament-level-wrapper {
+  width:110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* `position: sticky` の基準 */
+}
+
+/* ヘッダーの固定スタイル */
+.tournament-level-header {
+  position: sticky; /* スクロール時に固定 */
+  top: 0; /* ボックスの上部に固定 */
+  background-color: #fff; /* 背景色を設定 */
+  z-index: 10; /* 他の要素より上に表示 */
+  padding: 10px 0; /* ヘッダーの上下余白 */
+
+  width:100%;
+  text-align: center;
+  border-bottom: 1px solid #ccc; /* 視覚的な区切り線 */
+  margin-bottom: 10px;
+}
+
+.tournament-level-header h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* トーナメントレベルの試合 */
+.tournament-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 各試合のボックス */
+.match {
+  position: relative;
+  width: 110px;
+  min-width: 110px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.match-line-odd, .match-line-even, .match-line-final{
+  height: 100%;
+  min-width: 110px;
+  min-height:40px;
+  width:100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.match-line-odd::after{
+  content: "";
+  position: absolute;
+  width:20px;
+  height: var(--line-height, 25px);
+  right:-22px;
+  top:50%;
+  border-top:black solid 1px;
+  border-right:black solid 1px;
+  clear: both;
+}
+.match-line-even::after{
+  content: "";
+  position: absolute;
+  width:20px;
+  height: var(--line-height, 25px);
+  right:-22px;
+  bottom:50%;
+  border-bottom:black solid 1px;
+  border-right:black solid 1px;
+  clear: both;
+}
+.winner-border .match-line-odd::after{
+  border-top:rgb(0, 200, 255) solid 4px;
+  border-right:rgb(0, 200, 255) solid 4px;
+}
+.winner-border .match-line-even::after{
+  border-bottom:rgb(0, 200, 255) solid 4px;
+  border-right:rgb(0, 200, 255) solid 4px;
+}
+.match-line-odd::before, .match-line-even::before, .match-line-final::before{
+  content: "";
+  position: absolute;
+  width:25px;
+  height: var(--line-height, 25px);
+  left:-25px;
+  top:50%;
+  border-top:black solid 1px;
+  clear: both;
+
+}
+.winner-border-head .match-line-odd::before,.winner-border-head .match-line-even::before,.winner-border-head .match-line-final::before{
+  border-top:rgb(0, 200, 255) solid 4px;
+}
+
+
+
+.loser .winner-border .match-line-odd::after{
+  border-top:rgb(255, 0, 0) solid 4px;
+  border-right:rgb(255, 0, 0) solid 4px;
+}
+.loser .winner-border .match-line-even::after{
+  border-bottom:rgb(255, 0, 0) solid 4px;
+  border-right:rgb(255, 0, 0) solid 4px;
+}
+.loser .winner-border-head .match-line-odd::before,.loser .winner-border-head .match-line-even::before,.loser .winner-border-head .match-line-final::before{
+  border-top:rgb(255, 0, 0) solid 4px;
+}
+
+
+
+
+/* 入力ボックス */
+.match input{
+  width: 90%;
+  height: 80%;
+  font-size: 13px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  background-color: #fff;
+
+
+}
+.match span {
+  font-size: 12px;
+
+
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-align: center; /* 中央揃えをもう一度 */
+  padding: 4px;
+
+}
+
+input:focus {
+  outline: none;
+  border: 1px solid #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.match-index{
+  position: absolute;
+  width:20px;
+  height:20px;
+  border-radius: 50%;
+  border:#007bff solid 1px;
+  background-color: #ffffff;
+  top:-8px;
+  left:-8px;
+  display: flex;
+  font-size: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.match-detail{
+  position: absolute;
+  top:10px;
+  left:-35px;
+  display: flex;
+  background: #ffffff;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+.match-detail-number{
+  position: absolute;
+  top:10px;
+  left:-60px;
+  font-size:13px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+

@@ -1,0 +1,17 @@
+
+/* 横スクロールボックス */
+.matchOrders-box {
+  overflow-x: auto; /* 横スクロールを有効に */
+  white-space: nowrap; /* 水平レイアウトを維持 */
+  max-width: 100%;
+}
+
+
+.before-match{
+  background-color: #ebf7ff;
+
+}
+.after-match{
+  background-color: #ffebeb;
+
+}
