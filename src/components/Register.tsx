@@ -108,7 +108,7 @@ const Register = () => {
               />
             </Link>
             <h4 className="account-content__title mb-48 text-capitalize">
-              Create A Free Account
+              アカウントの作成
             </h4>
             <form onSubmit={handleSubmit(onSubmit)} className="w-100">
               <div className="row gy-4">
@@ -117,7 +117,7 @@ const Register = () => {
                     htmlFor="name"
                     className="form-label mb-2 font-18 font-heading fw-600"
                   >
-                    Full Name
+                    組織名
                   </label>
                   <div className="position-relative">
                     <input
@@ -138,7 +138,7 @@ const Register = () => {
                     htmlFor="email"
                     className="form-label mb-2 font-18 font-heading fw-600"
                   >
-                    Email
+                    メールアドレス
                   </label>
                   <div className="position-relative">
                     <input
@@ -159,7 +159,7 @@ const Register = () => {
                     htmlFor="your-password"
                     className="form-label mb-2 font-18 font-heading fw-600"
                   >
-                    Password
+                    パスワード
                   </label>
                   <div className="position-relative">
                     <input
@@ -204,17 +204,7 @@ const Register = () => {
                 </button>
 
                 </div>
-                <div className="col-12">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-light btn-lg-icon btn-lg w-100 pill"
-                  >
-                    <span className="icon icon-left">
-                      <img src="/assets/images/icons/google.svg" alt="" />
-                    </span>
-                    Sign up with google
-                  </button>
-                </div>
+
                 <div className="col-sm-12 mb-0">
                   <div className="have-account">
                     <p className="text font-14">
