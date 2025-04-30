@@ -71,7 +71,7 @@ const Login = () => {
               />
             </Link>
             <h4 className="account-content__title mb-48 text-capitalize">
-              Welcome Back!
+              ログインしてください
             </h4>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="row gy-4">
@@ -80,7 +80,7 @@ const Login = () => {
                     htmlFor="email"
                     className="form-label mb-2 font-18 font-heading fw-600"
                   >
-                    Email
+                    メールアドレス
                   </label>
                   <div className="position-relative">
                     <input
@@ -101,7 +101,7 @@ const Login = () => {
                     htmlFor="your-password"
                     className="form-label mb-2 font-18 font-heading fw-600"
                   >
-                    Password
+                    パスワード
                   </label>
                   <div className="position-relative">
                     <input
@@ -150,20 +150,10 @@ const Login = () => {
                     className="btn btn-main btn-lg w-100 pill"
                   >
                     {" "}
-                    Sign In
+                    ログイン
                   </button>
                 </div>
-                <div className="col-12">
-                  <button
-                    type="submit"
-                    className="btn btn-outline-light btn-lg-icon btn-lg w-100 pill"
-                  >
-                    <span className="icon icon-left">
-                      <img src="/assets/images/icons/google.svg" alt="" />
-                    </span>
-                    Sign in with google
-                  </button>
-                </div>
+
                 <div className="col-sm-12 mb-0">
                   <div className="have-account">
                     <p className="text font-14">
