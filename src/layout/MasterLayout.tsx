@@ -60,7 +60,7 @@ const MasterLayout = ({ children, user }) => {
                                 />
                             </Link>
                             <Link scroll={false} href="/" className="logo favicon mb-48">
-                                <img src="/assets/images/logo/favicon.png" alt="" />
+                                <img src="/assets/images/logo/logo-small.png" alt="" style={{ width: "40px", height: "auto" }}/>
                             </Link>
                             {/* Sidebar List Start */}
                             <ul className="sidebar-list">
@@ -98,22 +98,17 @@ const MasterLayout = ({ children, user }) => {
                                 </li>
 
 
-                                <li className={`sidebar-list__item ${pathname == "/login" && "activePage"}`}>
-                                    <Link scroll={false} href="/login" className="sidebar-list__link" onSelect={async () => {await signOut({ callbackUrl: "/" })}}>
+                                <li className="sidebar-list__item">
+                                    <button
+                                        onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
+                                        className="sidebar-list__link btn-reset"
+                                    >
                                         <span className="sidebar-list__icon">
-                                            <img
-                                                src="/assets/images/icons/sidebar-icon13.svg"
-                                                alt=""
-                                                className="icon"
-                                            />
-                                            <img
-                                                src="/assets/images/icons/sidebar-icon-active13.svg"
-                                                alt=""
-                                                className="icon icon-active"
-                                            />
+                                        <img src="/assets/images/icons/sidebar-icon13.svg" alt="" className="icon" />
+                                        <img src="/assets/images/icons/sidebar-icon-active13.svg" alt="" className="icon icon-active" />
                                         </span>
                                         <span className="text">Logout</span>
-                                    </Link>
+                                    </button>
                                 </li>
                             </ul>
                             {/* Sidebar List End */}
@@ -162,8 +157,8 @@ const MasterLayout = ({ children, user }) => {
                                         <div className="user-profile">
                                             <button className="user-profile__button flex-align" onClick={showProfileControl}>
                                                 <span className="user-profile__thumb">
-                                                <img
-                                                    src={user?.avatar || "/assets/images/thumbs/user-profile.png"} // ✅ user.avatar があればそれを使う
+                                                    <img
+                                                    src={user?.avatar || "/assets/images/logo/logo-small.png"} // ✅ user.avatar があればそれを使う
                                                     className="cover-img"
                                                     alt="User Avatar"
                                                     />
@@ -206,21 +201,16 @@ const MasterLayout = ({ children, user }) => {
                                                     </Link>
                                                 </li>
                                                 <li className="sidebar-list__item">
-                                                    <Link scroll={false} href="" className="sidebar-list__link" onClick={async () => {await signOut({ redirect: true, callbackUrl: "/" }); }}>
-                                                        <span className="sidebar-list__icon">
-                                                            <img
-                                                                src="/assets/images/icons/sidebar-icon13.svg"
-                                                                alt=""
-                                                                className="icon"
-                                                            />
-                                                            <img
-                                                                src="/assets/images/icons/sidebar-icon-active13.svg"
-                                                                alt=""
-                                                                className="icon icon-active"
-                                                            />
-                                                        </span>
-                                                        <span className="text">Logout</span>
-                                                    </Link>
+                                                <button
+                                                    onClick={() => signOut({ redirect: true, callbackUrl: "/" })}
+                                                    className="sidebar-list__link btn-reset"
+                                                >
+                                                    <span className="sidebar-list__icon">
+                                                    <img src="/assets/images/icons/sidebar-icon13.svg" alt="" className="icon" />
+                                                    <img src="/assets/images/icons/sidebar-icon-active13.svg" alt="" className="icon icon-active" />
+                                                    </span>
+                                                    <span className="text">Logout</span>
+                                                </button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -237,9 +227,7 @@ const MasterLayout = ({ children, user }) => {
                                             />
                                             <select className="select py-0 ps-2 border-0 fw-500">
                                                 <option value={1}>Eng</option>
-                                                <option value={2}>Bn</option>
-                                                <option value={3}>Eur</option>
-                                                <option value={4}>Urd</option>
+                                                <option value={2}>Jpn</option>
                                             </select>
                                         </div>
                                     </div>
