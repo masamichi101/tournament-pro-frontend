@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import TournamentCategoryForm from './form/TournamentCategoryForm';
 import { UserType } from 'lib/nextauth';
+import toast from "react-hot-toast";
 
 interface Tournament {
   uid: string;
@@ -84,10 +85,10 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
 
             if (res.success) {
                 setCategories([...categories, res.category]);
-                alert("カテゴリーを作成しました");
+                toast.success("カテゴリーを作成しました");
 
             } else {
-                alert("カテゴリーの作成を失敗しました");
+                toast.error("カテゴリーの作成を失敗しました");
             }
         } catch (error) {
           console.error("Error creating tournament:", error);
@@ -106,7 +107,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
             <div className="welcome-balance mt-2 mb-40 flx-between gap-2">
                 <div className="welcome-balance__left">
                 <h4 className="welcome-balance__title mb-0">
-                  【{tournament?.name || "大会名取得中..."}】カテゴリー
+                  {tournament?.name || "大会名取得中..."}【{tournament?.start_date.slice(0, 4)}】カテゴリー
                 </h4>
 
                 </div>

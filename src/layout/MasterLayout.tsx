@@ -9,6 +9,7 @@ import { IoMdPeople } from "react-icons/io";
 import { IoDocumentsOutline } from "react-icons/io5";
 import { MdCreate } from "react-icons/md";
 import { TbTournament } from "react-icons/tb";
+import { Toaster } from "react-hot-toast";
 
 const MasterLayout = ({ children, user }) => {
 
@@ -32,6 +33,7 @@ const MasterLayout = ({ children, user }) => {
 
     return (
         <AuthProvider>
+            <Toaster position="top-center" reverseOrder={false} />
 
 
 

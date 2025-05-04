@@ -7,6 +7,7 @@ import { addParticipant, deletePlayer, getPlayersList } from "@/action/participa
 import { FaTrashAlt } from "react-icons/fa";
 import ConfirmationModal from "./modal/deleteModal";
 import { UserType } from "lib/nextauth";
+import toast from "react-hot-toast";
 
 interface ParticipantsFormData {
   tournamentCategoryUid: string;
@@ -26,6 +27,7 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
 
   useEffect(() => {
@@ -45,6 +47,8 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
   const handleTournamentChange = async (event) => {
     const selectedUid = event.target.value;
     setSelectedTournament(selectedUid);
+    setSelectedCategory({ uid: "", gender: "" });
+    setParticipants([]);
 
 
     if (selectedUid) {
@@ -119,15 +123,22 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
 
           if (res.success) {
               setParticipants([...participants, res.participant]);
-              alert("プレーヤーを追加しました");
+              toast.success("プレーヤーを追加しました");
 
           } else {
-              alert("プレーヤー追加を失敗しました");
+            toast.error("プレーヤー追加に失敗しました");
+
           }
       } catch (error) {
         console.error("Error creating player:", error);
+        toast.error("エラーが発生しました");
+
       }
     };
+
+    const sortedParticipants = [...participants].sort((a, b) => {
+      return sortOrder === "asc" ? a.id - b.id : b.id - a.id;
+    });
 
 
 
@@ -162,7 +173,7 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
                   </option>
                   {tournaments.map((tournament) => (
                     <option key={tournament.uid} value={tournament.uid}>
-                      {tournament.name}
+                      {tournament.name}【{tournament.start_date.slice(0, 4)}】
                     </option>
                   ))}
                 </select>
@@ -183,7 +194,7 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
                 </div>
               </div>
               <div className="select-has-icon">
-                <select className="common-input" defaultValue="" onChange={handleCategoryChange}>
+                <select className="common-input" value={selectedCategory.uid} onChange={handleCategoryChange}>
                   <option value="" disabled>
                     カテゴリーを選択してください
                   </option>
@@ -212,7 +223,19 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
           </div>
       </div>
       <div className="d-flex justify-content-between align-items-center">
-        <h6 className="mb-0">参加者</h6>
+          <h6 className="mb-0">参加者</h6>
+          <div className="d-flex align-items-center gap-2">
+            <span className="fw-300">並び順</span>
+            <select
+              className="form-select form-select-sm"
+              style={{ width: "120px" }}
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+            >
+              <option value="asc">昇順</option>
+              <option value="desc">降順</option>
+            </select>
+          </div>
         <div className="welcome-balance__right flx-align gap-2">
             <span className="fw-300">
                 総参加者数
@@ -229,13 +252,17 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
                         </div>
         ) : (
           <div className="card common-card">
-            {participants.map((participant,index) => (
+            {sortedParticipants.map((participant, index) => (
               <div className="card-body p-1" key={index}>
                 <div className="follow-wrapper p-1">
                   <div className="follow-item">
                     <div className="col-2 row" >
                       <div className="col d-flex flex-column justify-content-center align-items-center">
-                        <h6 className="m-0">{index + 1}</h6>
+                      <h6 className="m-0">
+                        {sortOrder === "asc"
+                          ? index + 1
+                          : sortedParticipants.length - index}
+                      </h6>
                       </div>
                       <div className="col ">
                       <img
