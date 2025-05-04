@@ -6,9 +6,9 @@ import { getAuthSession } from "lib/nextauth";
 import TournamentList from "@/components/TournamentList";
 
 export const metadata = {
-  title: "トーナメント作成",
+  title: "トーナメントPRO",
   description:
-    "DpMarket – Digital Products Marketplace NEXT JS Template – A versatile and meticulously designed set of templates crafted to elevate your Digital Products Marketplace content and experiences.",
+    "柔道のトーナメントを管理するためのアプリケーションです。",
 };
 
 const page = async() => {

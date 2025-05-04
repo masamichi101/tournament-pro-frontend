@@ -3,6 +3,11 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import { getAuthSession } from "lib/nextauth"
 import { completeSignup } from "@/action/user"
+export const metadata = {
+  title: "トーナメントPRO",
+  description:
+    "柔道のトーナメントを管理するためのアプリケーションです。",
+};
 
 interface CompleteSignupPageProps {
   params: {

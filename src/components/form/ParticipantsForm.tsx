@@ -70,11 +70,17 @@ const ParticipantsForm: React.FC<ParticipantsFormProps> = ({
           <input
             type="text"
             className="common-input common-input--md border--color-dark bg--white"
-            id="venue"
-            {...register("zenjuren_id")}
+            id="zenjuren_id"
+            {...register("zenjuren_id", {
+              validate: (value) =>
+                value === null || value.toString() === "" || /^\d+$/.test(value.toString()) || "整数を入力してください",
+            })}
             disabled={!tournamentCategoryUid}
           />
-          {errors.zenjuren_id && <p className="text-danger">{errors.zenjuren_id.message}</p>}
+          {errors.zenjuren_id && (
+            <p className="text-danger">{errors.zenjuren_id.message}</p>
+          )}
+
         </div>
 
         <div className="col-sm-6 col-xs-6">

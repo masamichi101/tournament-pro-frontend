@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import StepLadderFirstForm from "./form/StepLadderFirstForm";
 import StepLadderGenerator from "./StepLadderGenerator";
 import { UserType } from "lib/nextauth";
+import toast from "react-hot-toast";
 
 
 interface StepLadderFirstFormData {
@@ -188,10 +189,10 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
 
                 if (res.success) {
                     setStepLadders([...stepLadders, res.stepLadder]);
-                    alert("step ladderを作成しました");
+                    toast.success("step ladderを作成しました");
 
                 } else {
-                    alert("step ladderの作成を失敗しました");
+                    toast.error("step ladderの作成を失敗しました");
                 }
             } catch (error) {
               console.error("Error creating stepladder:", error);
@@ -243,7 +244,7 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
                       </option>
                       {tournaments.map((tournament) => (
                         <option key={tournament.uid} value={tournament.uid}>
-                          {tournament.name}
+                          {tournament.name}【{tournament.start_date.slice(0, 4)}】
                         </option>
                       ))}
                     </select>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import { useForm } from "react-hook-form";
 import ImageUploading, { ImageListType } from "react-images-uploading";
 import { FaRegTrashAlt } from "react-icons/fa";
@@ -32,11 +32,7 @@ const prefectures = [
 ];
 
 
-const TournamentForm: React.FC<TournamentFormProps> = ({
-  onSubmit,
-  imageUpload,
-  onChangeImage,
-}) => {
+const TournamentForm = forwardRef(({ onSubmit, imageUpload, onChangeImage }: TournamentFormProps, ref) => {
   const { register,handleSubmit,reset,watch,formState: { errors } } = useForm<TournamentFormData>({
     defaultValues: {
       name: "",
@@ -48,6 +44,10 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
 
     },
   });
+
+  useImperativeHandle(ref, () => ({
+    resetForm: () => reset(),
+  }));
 
   const startDateValue = watch("startDate");
 
@@ -181,6 +181,6 @@ const TournamentForm: React.FC<TournamentFormProps> = ({
       </div>
     </form>
   );
-};
+});
 
 export default TournamentForm;
