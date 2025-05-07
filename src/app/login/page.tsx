@@ -5,9 +5,9 @@ import { getAuthSession } from "lib/nextauth";
 import { redirect } from "next/navigation"
 
 export const metadata = {
-  title: "Digital Market Place NEXT Js Template",
+  title: "トーナメントPRO",
   description:
-    "DpMarket – Digital Products Marketplace NEXT JS Template – A versatile and meticulously designed set of templates crafted to elevate your Digital Products Marketplace content and experiences.",
+    "柔道のトーナメントを管理するためのアプリケーションです。",
 };
 
 const page = async() => {

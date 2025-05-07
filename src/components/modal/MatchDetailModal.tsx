@@ -43,7 +43,6 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
     //onMatchOrderSelect,
   }) => {
 
-    console.log("matcount",matCount)
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [matchId, setMatchId] = useState<string>("");
@@ -186,7 +185,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
     setTempLoser(loserPlayer?.id || null);
   };
   const isDisabledDueToPlaceholder = previousLevelPlayers.some(p => p?.id === -1);
-  console.log(isDisabledDueToPlaceholder)
+
 
 
 
@@ -227,15 +226,16 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
 
         <label className="modal-label">試合順</label>
         {error && <p className="text-danger" style={{ fontSize: "12px" }}>{error}</p>}
-        <input
-          type="number"
-          className="modal-input"
-          value={matchOrder}// 🔹 undefined の場合は空文字にする
-          onChange={handleMatchOrderChange}
-
-
-          placeholder="試合順を入力"
-        />
+        <select
+          className="modal-select"
+          value={matchOrder ?? ""}
+          onChange={(e) => setMatchOrder(Number(e.target.value))}
+        >
+          <option value="">選択してください</option>
+          {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
+            <option key={num} value={num}>{num}</option>
+          ))}
+        </select>
 
 
 
@@ -481,29 +481,30 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
         />
         <div className={`time-input mb-3 ${winnerDisable || isDisabledDueToPlaceholder ? "opacity-50" : ""}`}>
           <label className="modal-label">試合時間</label>
-          <div className="time-fields">
-            <input
-              type="number"
-              className="time-field"
-              value={minutes}
+          <div className="d-flex gap-2">
+            <select
+              className="modal-select"
+              value={minutes ?? ""}
               onChange={(e) => setMinutes(Number(e.target.value))}
-              placeholder="分"
-              min="0"
-              max="59"
-              disabled={winnerDisable || isDisabledDueToPlaceholder}
-            />
-            <span>:</span>
-            <input
-              type="number"
-              className="time-field"
-              value={seconds}
+            >
+              <option value="">分</option>
+              {Array.from({ length: 60 }, (_, i) => i).map((num) => (
+                <option key={num} value={num}>{num}</option>
+              ))}
+            </select>
+
+            <select
+              className="modal-select"
+              value={seconds ?? ""}
               onChange={(e) => setSeconds(Number(e.target.value))}
-              placeholder="秒"
-              min="0"
-              max="59"
-              disabled={winnerDisable || isDisabledDueToPlaceholder}
-            />
+            >
+              <option value="">秒</option>
+              {Array.from({ length: 60 }, (_, i) => i).map((num) => (
+                <option key={num} value={num}>{num}</option>
+              ))}
+            </select>
           </div>
+
         </div>
 
 

@@ -2,13 +2,14 @@
 
 'use client'
 import { createTournament, getTournamentsByUserAccount} from '@/action/tournament';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef} from 'react';
 import { useForm } from 'react-hook-form';
 import ImageUploading, { ImageListType } from "react-images-uploading";
 import TournamentForm from './form/TournamentForm';
 import Link from "next/link";
 import { UserType } from 'lib/nextauth';
 import LoadingModal from './modal/LoadingModal';
+import toast from "react-hot-toast";
 
 
 
@@ -24,6 +25,8 @@ interface TournamentFormData {
 }
 
 const TournamentList = ({ user }: { user: UserType }) => {
+
+    const formRef = useRef<{ resetForm: () => void }>(null);
 
       const [tournaments, setTournaments] = useState([]);
       const [imageUpload, setImageUpload] = useState<string | undefined>(undefined);
@@ -90,9 +93,11 @@ const TournamentList = ({ user }: { user: UserType }) => {
 
             if (res.success) {
                 setTournaments([...tournaments, res.tournament]);
-                alert("トーナメントを作成しました");
+                toast.success("トーナメントを作成しました");
+                formRef.current?.resetForm();
+                setImageUpload(undefined);
             } else {
-                alert("トーナメント作成に失敗しました");
+                toast.error("トーナメント作成に失敗しました");
             }
         } catch (error) {
           console.error("Error creating tournament:", error);
@@ -133,7 +138,7 @@ const TournamentList = ({ user }: { user: UserType }) => {
                     <h6 className="title">大会作成</h6>
                     </div>
                     <div className="card-body">
-                        <TournamentForm onSubmit={onSubmit} imageUpload={imageUpload} onChangeImage={onChangeImage} />
+                        <TournamentForm ref={formRef} onSubmit={onSubmit} imageUpload={imageUpload} onChangeImage={onChangeImage} />
 
 
                 </div>
