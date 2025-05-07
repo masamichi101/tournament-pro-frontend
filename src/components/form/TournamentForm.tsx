@@ -6,7 +6,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 interface TournamentFormData {
   name: string;
   venue: string;
-  image: File | null;
+  image: string | null;
   prefecture: string;
   matCount: number;
   startDate: string;
@@ -32,6 +32,19 @@ const prefectures = [
 ];
 
 
+// Convert a data URL to a File object
+const dataURLtoFile = (dataUrl: string, filename: string): File => {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1] || "";
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new File([u8arr], filename, { type: mime });
+};
+
 const TournamentForm = forwardRef(({ onSubmit, imageUpload, onChangeImage }: TournamentFormProps, ref) => {
   const { register,handleSubmit,reset,watch,formState: { errors } } = useForm<TournamentFormData>({
     defaultValues: {
@@ -52,7 +65,10 @@ const TournamentForm = forwardRef(({ onSubmit, imageUpload, onChangeImage }: Tou
   const startDateValue = watch("startDate");
 
   const handleFormSubmit = (data: TournamentFormData) => {
-    onSubmit(data); // 親コンポーネントの onSubmit を呼び出す
+    onSubmit({
+      ...data,
+      image: imageUpload ? dataURLtoFile(imageUpload, "upload.jpeg") : null, // ⚠️ image を正しい型に変換
+    });
     reset(); // フォームをリセット
   };
 
