@@ -67,7 +67,7 @@ const TournamentForm = forwardRef(({ onSubmit, imageUpload, onChangeImage }: Tou
   const handleFormSubmit = (data: TournamentFormData) => {
     onSubmit({
       ...data,
-      image: imageUpload ? dataURLtoFile(imageUpload, "upload.jpeg") : null, // ⚠️ image を正しい型に変換
+      image: imageUpload ?? null,
     });
     reset(); // フォームをリセット
   };

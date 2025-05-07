@@ -16,12 +16,11 @@ import toast from "react-hot-toast";
 interface TournamentFormData {
     name: string;
     venue: string;
-    image: File | null;
+    image: string | null;
     prefecture: string;
     matCount: number;
     startDate: string;
     endDate: string | null;
-    createdAt:string;
 }
 
 const TournamentList = ({ user }: { user: UserType }) => {
