@@ -130,7 +130,6 @@ const StepLadderGenerator = ({
 
   const isFetching = useRef(false);
 
-  console.log(stepLadderPlayersOrder)
   useEffect(() => {
     setStepLadderData(generateStepLadderData(initialStepLadderCount, stepLadderPlayersOrder));
   }, [stepLadderPlayersOrder]);
@@ -320,8 +319,7 @@ const StepLadderGenerator = ({
 
 
   const handlePlayerSelect = async(player: any) => {
-    console.log(stepLadderType)
-    console.log(player)
+
     if (selectedMatch) {
       const { level, matchCount } = selectedMatch;
 
@@ -453,24 +451,21 @@ const StepLadderGenerator = ({
 
 
   const handleMatchDetailClick = useCallback(async (level: string, match: string) => {
-    console.log(level)
-    console.log(match)
+
     if (isFetching.current) return; // 🔹 すでにリクエスト中ならスキップ
     isFetching.current = true;
 
 
 
-    // 🔹 レベル表記を変換
-    const matchCount = Object.keys(stepLadderData[level]).length;
     const levelNumber = parseInt(level.replace("回戦", ""), 10);
-    const adjustedLevel = levelNumber > 1 ? `${levelNumber - 1}回戦` : "決勝";
-    let levelLabel = adjustedLevel;
-    console.log(levelNumber)
-    console.log(adjustedLevel)
+    const matchNumber = Number(match);
 
-    if (matchCount === 1) levelLabel = "決勝";
-    else if (matchCount === 2) levelLabel = "準決勝";
-    else if (matchCount === 4) levelLabel = "準々決勝";
+    const matchCount = Object.keys(stepLadderData[level]).length;
+    const levelLabel =
+      matchCount === 1 ? "決勝" :
+      matchCount === 2 ? "準決勝" :
+      matchCount === 4 ? "準々決勝" :
+      `${levelNumber - 1}回戦`;
 
     // 🔹 前のラウンドのプレイヤーを取得
     const currentLevelIndex = Object.keys(stepLadderData).indexOf(level);
@@ -486,31 +481,32 @@ const StepLadderGenerator = ({
     }
 
     try {
-        let nextLevelNumber = levelNumber;
+      // 現在の試合データ取得
+      const response = await getMatch({
+        step_ladder_uid: stepLadderUid,
+        level: levelNumber,
+        match_number: matchNumber,
+      });
 
-        // 試合数が1（＝決勝戦）の場合は +1 しない
-        if (Object.keys(stepLadderData[level]).length !== 1) {
-          nextLevelNumber = levelNumber + 1;
-        }
-        const response = await getMatch({
-            step_ladder_uid: stepLadderUid,
-            level: nextLevelNumber,
-            match_number: Math.floor((parseInt(match, 10) + 1) / 2)
-        });
+      if (!response.success || !response.match) {
+        console.error("試合データの取得に失敗しました");
+        return;
+      }
 
-        if (!response.success || !response.match) {
-            console.error("試合データの取得に失敗しました");
-            return;
-        }
+      // 1階層上（次レベル）の winner を stepLadderData から参照して winnerDisable を判断
+      const nextLevelKey = `${levelNumber + 1}回戦`;
+      const nextMatchKey = Math.floor((matchNumber + 1) / 2);
+      const nextLevelWinner = stepLadderData?.[nextLevelKey]?.[nextMatchKey];
 
-        // 🔹 状態更新
-        setSelectedMatchDetail({
-            level,
-            match,
-            previousLevelPlayers,
-            winnerDisable: response.match.final ? false : response.match.winner !== null,
-            levelLabel,
-        });
+      setSelectedMatchDetail({
+        level,
+        match,
+        previousLevelPlayers,
+        winnerDisable: !!nextLevelWinner, // ← 上の階層に winner がいるなら編集不可
+        levelLabel,
+        winner: response.match.winner ?? null,
+      });
+
 
         setIsDetailModalOpen(true);
     } catch (error) {
@@ -524,26 +520,37 @@ const StepLadderGenerator = ({
 
   const handleUpdateMatch = async (matchData) => {
     if (!selectedMatchDetail) return;
-
+    console.log("matchData",matchData)
     try {
       const requestData = {
         ...matchData,
         accessToken: user.accessToken, // ✅ `user.accessToken` をセット
       };
 
+
       // API リクエストで試合データを更新
       const response = await updateMatch(requestData);
 
       if (response.success) {
-        const { winner, loser, level, match_number } = matchData;
+        const { winner, loser} = matchData;
         const currentLevelNumber = parseInt(selectedMatchDetail.level.replace("回戦", ""), 10);
         const previousLevelKey = `${currentLevelNumber - 1}回戦`;
 
 
         // 🔹 既存の勝者情報を取得
         const previousWinner = selectedMatchDetail.winner || null;
+        console.log("selectedMatchDetails",selectedMatchDetail)
+        console.log("previousWinner",previousWinner)
 
         if (winner === undefined && loser === undefined) return;
+        if (
+          selectedMatchDetail.winner &&
+          typeof selectedMatchDetail.winner === "object"
+            ? selectedMatchDetail.winner.id === winner
+            : selectedMatchDetail.winner === winner
+        ) {
+          return;
+        }
 
 
         const winnerPlayer = selectedMatchDetail.previousLevelPlayers?.find(
@@ -586,17 +593,25 @@ const StepLadderGenerator = ({
             const player = updatedPreviousLevel[matchKey];
 
             if (player) {
-              // 🔁 勝者リセット時は両者を loser: false にする
+              const original = updatedPreviousLevel[matchKey];
+              if (!original) return;
+
+              const player = { ...original }; // 🔴 ここで参照切り離す
+              const originalLoser = player.loser;
+
               if (winner === null) {
-                updatedPreviousLevel[matchKey] = { ...player, loser: false };
+                player.loser = false;
               } else {
                 if (Number(player.id) === Number(loser) && previousWinner !== winner) {
-                  updatedPreviousLevel[matchKey] = { ...player, loser: true };
+                  player.loser = true;
                 }
-                if (Number(player.id) === Number(winner) && previousWinner !== winner) {
-                  updatedPreviousLevel[matchKey] = { ...player, loser: false };
-                }
+
               }
+
+              if (player.loser !== originalLoser) {
+                console.log(`🧪 FRONTEND: player=${player.name} ID=${player.id} loser: ${originalLoser} → ${player.loser}`);
+              }
+              updatedPreviousLevel[matchKey] = player;
             }
           });
 
