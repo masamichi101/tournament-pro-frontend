@@ -177,6 +177,7 @@ export interface Category {
   weight:string;
   match_day?: string | null;
   created_at: string;
+  is_deleted: boolean;
 
 
 }
@@ -200,6 +201,8 @@ export const getTournamentCategoryList = async ({ uid }: { uid: string }) => {
 
   return { success: true, categories}
 }
+
+
 
 
 export const getTournamentCategoryListByUserAccount = async ({ uid, accessToken }: { uid: string, accessToken: string }) => {
@@ -279,6 +282,91 @@ export const createTournamentCategory = async ({
     console.error("カテゴリーの作成に失敗しました:", error);
     return { success: false, category: null };
   }
+};
+
+
+
+
+interface ToggleDeleteCategoryType {
+  accessToken: string;
+  uid: string;
+}
+
+export const toggleDeleteTournamentCategory = async ({
+  accessToken,
+  uid,
+}: ToggleDeleteCategoryType) => {
+  const options: RequestInit = {
+    method: "PATCH",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const result = await fetchAPI(`/api/tournament-category/${uid}/toggle-delete/`, options);
+
+  if (!result.success) {
+    console.error("toggleDeleteTournamentCategory error:", result.error);
+    return { success: false };
+  }
+
+  return { success: true, is_deleted: result.data.is_deleted };
+};
+
+
+
+
+export const getTournamentCategoryDeletedList = async ({
+  uid,
+  accessToken,
+}: {
+  uid: string;
+  accessToken: string;
+})=> {
+  const options: RequestInit = {
+    method: "GET",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+    },
+    cache: "no-store",
+  };
+
+  // 投稿詳細取得
+  const result = await fetchAPI(`/api/tournament/deleted-category-list/${uid}/`, options)
+
+
+  if (!result.success) {
+    console.error(result.error)
+    return { success: false, categories: null }
+  }
+
+  const categories: Category[] = result.data
+
+  return { success: true, categories}
+}
+
+
+export const deleteTournamentCategoryPermanently = async ({
+  accessToken,
+  uid,
+}: ToggleDeleteCategoryType) => {
+  const options: RequestInit = {
+    method: "DELETE",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  const result = await fetchAPI(`/api/tournament-category/${uid}/permanent-delete/`, options);
+
+  if (!result.success) {
+    console.error("deleteTournamentCategoryPermanently error:", result.error);
+    return { success: false };
+  }
+
+  return { success: true };
 };
 
 

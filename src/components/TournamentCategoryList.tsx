@@ -1,12 +1,15 @@
 
 
 'use client'
-import {createTournamentCategory, getTournament, getTournamentCategoryList, getTournamentCategoryListByUserAccount} from '@/action/tournament';
+import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory} from '@/action/tournament';
 import React, { useEffect, useState } from 'react';
 
 import TournamentCategoryForm from './form/TournamentCategoryForm';
 import { UserType } from 'lib/nextauth';
 import toast from "react-hot-toast";
+import { FaTrash } from 'react-icons/fa';
+import ConfirmModal from './modal/ConfirmModal';
+import TrashCategoryModal from './modal/TrashCategoryModal';
 
 interface Tournament {
   uid: string;
@@ -30,7 +33,9 @@ interface TournamentCategory {
     gender: string;
     weight: string;
     name: string;
+
     match_day?: string | null;
+    is_deleted: boolean;
   }
 interface TournamentCategoryListProps {
     uid: string; // 親コンポーネントから渡されるトーナメント UID
@@ -44,6 +49,18 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
       const [categories, setCategories] = useState<TournamentCategory[]>([]);
       const [tournament, setTournament] = useState<Tournament | null>(null);
       const [loading, setLoading] = useState(true);
+
+      const [showConfirmModal, setShowConfirmModal] = useState(false);
+      const [selectedCategory, setSelectedCategory] = useState<TournamentCategory | null>(null);
+
+      const [showTrashModal, setShowTrashModal] = useState(false);
+      const [deletedCategories, setDeletedCategories] = useState<TournamentCategory[]>([]);
+      const [loadingTrash, setLoadingTrash] = useState(false);
+
+      const [permanentDeleteTarget, setPermanentDeleteTarget] = useState<TournamentCategory | null>(null);
+      const [showPermanentConfirmModal, setShowPermanentConfirmModal] = useState(false);
+
+
 
 
 
@@ -95,6 +112,87 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
         }
       };
 
+
+      const handleConfirmDelete = async () => {
+        if (!selectedCategory) return;
+
+        const res = await toggleDeleteTournamentCategory({
+          accessToken: user.accessToken,
+          uid: selectedCategory.uid,
+        });
+
+        if (res.success) {
+          setCategories(prev => prev.filter(c => c.uid !== selectedCategory.uid));
+          toast.success("カテゴリーをゴミ箱に移動しました");
+        } else {
+          toast.error("削除に失敗しました");
+        }
+
+        setShowConfirmModal(false);
+        setSelectedCategory(null);
+      };
+
+      const openTrashModal = async () => {
+        setShowTrashModal(true);
+        setLoadingTrash(true);
+        try {
+          const res = await getTournamentCategoryDeletedList({ uid,accessToken: user.accessToken, });
+          if (res.success) {
+            setDeletedCategories(res.categories || []);
+          }
+        } catch (err) {
+          console.error("ゴミ箱一覧の取得に失敗しました", err);
+        } finally {
+          setLoadingTrash(false);
+        }
+      };
+
+      const handleRestore = async (category: TournamentCategory) => {
+        const res = await toggleDeleteTournamentCategory({
+          accessToken: user.accessToken,
+          uid: category.uid,
+        });
+        if (res.success) {
+          setDeletedCategories(prev => prev.filter(c => c.uid !== category.uid));
+          setCategories(prev => [...prev, category]);
+          toast.success("カテゴリーを復元しました");
+        } else {
+          toast.error("復元に失敗しました");
+        }
+      };
+
+      const handlePermanentDelete = async (category: TournamentCategory) => {
+        const res = await deleteTournamentCategoryPermanently({
+          accessToken: user.accessToken,
+          uid: category.uid,
+        });
+        if (res.success) {
+          setDeletedCategories(prev => prev.filter(c => c.uid !== category.uid));
+          toast.success("完全に削除しました");
+        } else {
+          toast.error("完全削除に失敗しました");
+        }
+      };
+
+
+      const handleConfirmPermanentDelete = async () => {
+        if (!permanentDeleteTarget) return;
+
+        const res = await deleteTournamentCategoryPermanently({
+          accessToken: user.accessToken,
+          uid: permanentDeleteTarget.uid,
+        });
+
+        if (res.success) {
+          setDeletedCategories(prev => prev.filter(c => c.uid !== permanentDeleteTarget.uid));
+          toast.success("完全に削除しました");
+        } else {
+          toast.error("完全削除に失敗しました");
+        }
+
+        setShowPermanentConfirmModal(false);
+        setPermanentDeleteTarget(null);
+      };
 
 
 
@@ -225,6 +323,27 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                                   >
                                     {category?.name || "-"}
                                   </h4>
+                                  <div className="position-relative">
+                                    {/* ...省略... */}
+
+                                    {/* ゴミ箱アイコンボタン */}
+                                    <button
+                                      onClick={() => {
+                                        setSelectedCategory(category);
+                                        setShowConfirmModal(true);
+                                      }}
+                                      className="btn btn-sm btn-danger position-absolute rounded-pill"
+                                      style={{
+                                        bottom: "10px",
+                                        right: "10px",
+                                        padding: "6px 6px",
+                                        border: "1px solid #ccc"
+                                      }}
+                                      title="ゴミ箱に移動"
+                                    >
+                                      <FaTrash size={10} />
+                                    </button>
+                                  </div>
 
 
                                 </div>
@@ -232,9 +351,47 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                             ))}
                         </div>
                         )}
+                        <button className="btn btn-info my-3" onClick={openTrashModal}>
+                          ゴミ箱を表示
+                        </button>
                 </div>
 
+
+
             </div>
+            <ConfirmModal
+              show={showConfirmModal}
+              title="カテゴリー削除の確認"
+              message={`「${selectedCategory?.match_type || ""}${selectedCategory?.gender || ""}${selectedCategory?.weight || ""}${selectedCategory?.name || ""}」をゴミ箱に移動してもよろしいですか？`}
+              onConfirm={handleConfirmDelete}
+              onCancel={() => {
+                setShowConfirmModal(false);
+                setSelectedCategory(null);
+              }}
+            />
+            <ConfirmModal
+              show={showPermanentConfirmModal}
+              title="完全削除の確認"
+              message={`「${permanentDeleteTarget?.match_type || ""}${permanentDeleteTarget?.gender || ""}${permanentDeleteTarget?.weight || ""}${permanentDeleteTarget?.name || ""}」を完全に削除します。元に戻せません。本当によろしいですか？`}
+              onConfirm={handleConfirmPermanentDelete}
+              onCancel={() => {
+                setShowPermanentConfirmModal(false);
+                setPermanentDeleteTarget(null);
+              }}
+            />
+            <TrashCategoryModal
+              show={showTrashModal}
+              onClose={() => setShowTrashModal(false)}
+              deletedCategories={deletedCategories}
+              loading={loadingTrash}
+              onRestore={handleRestore}
+              onPermanentDelete={(category) => {
+                setPermanentDeleteTarget(category);
+                setShowPermanentConfirmModal(true);
+              }}
+
+            />
+
         </div>
     );
 }
