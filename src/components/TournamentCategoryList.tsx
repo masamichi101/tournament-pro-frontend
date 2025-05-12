@@ -1,7 +1,7 @@
 
 
 'use client'
-import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory} from '@/action/tournament';
+import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory, updateTournament} from '@/action/tournament';
 import React, { useEffect, useState } from 'react';
 
 import TournamentCategoryForm from './form/TournamentCategoryForm';
@@ -11,13 +11,13 @@ import { FaTrash } from 'react-icons/fa';
 import ConfirmModal from './modal/ConfirmModal';
 import TrashCategoryModal from './modal/TrashCategoryModal';
 
-interface Tournament {
-  uid: string;
-  name: string;
-  start_date: string;
-  end_date: string | null;
-  venue: string;
-}
+import "../../public/assets/css/bootstrap-btn.css";
+import TournamentEditModal from './modal/TournamentEditModal';
+
+import { MdOutlineDateRange } from "react-icons/md";
+import { FaRegMap } from "react-icons/fa";
+import { AiFillAppstore } from "react-icons/ai";
+
 
 interface TournamentCategoryFormData {
     tournamentUid: string;
@@ -41,7 +41,16 @@ interface TournamentCategoryListProps {
     uid: string; // 親コンポーネントから渡されるトーナメント UID
     user:UserType;
   }
-
+export interface Tournament {
+    uid: string;
+    name: string;
+    prefecture: string;
+    venue: string;
+    start_date: string;
+    end_date: string | null;
+    mat_count: number;
+    image?:string | null; // 画像の型をFileまたはstringに変更
+  }
 
 const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
 
@@ -59,6 +68,9 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
 
       const [permanentDeleteTarget, setPermanentDeleteTarget] = useState<TournamentCategory | null>(null);
       const [showPermanentConfirmModal, setShowPermanentConfirmModal] = useState(false);
+
+      const [showEditModal, setShowEditModal] = useState(false);
+      const [editTarget, setEditTarget] = useState<Tournament | null>(null);
 
 
 
@@ -161,19 +173,6 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
         }
       };
 
-      const handlePermanentDelete = async (category: TournamentCategory) => {
-        const res = await deleteTournamentCategoryPermanently({
-          accessToken: user.accessToken,
-          uid: category.uid,
-        });
-        if (res.success) {
-          setDeletedCategories(prev => prev.filter(c => c.uid !== category.uid));
-          toast.success("完全に削除しました");
-        } else {
-          toast.error("完全削除に失敗しました");
-        }
-      };
-
 
       const handleConfirmPermanentDelete = async () => {
         if (!permanentDeleteTarget) return;
@@ -195,17 +194,138 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
       };
 
 
+      const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64Image = reader.result as string;
+          const res = await updateTournament({
+            accessToken: user.accessToken,
+            uid: tournament.uid,
+            updatedFields: { image: base64Image }, // image含めて送る
+          });
+          if (res.success) {
+            setTournament(res.tournament);
+            toast.success("画像を更新しました");
+          } else {
+            toast.error("画像更新に失敗しました");
+          }
+        };
+        reader.readAsDataURL(file);
+      };
+
+
+
 
 
 
 
     return (
         <div className="dashboard-body__content">
+          {editTarget && (
+            <TournamentEditModal
+              show={showEditModal}
+              tournament={editTarget}
+              onClose={() => setShowEditModal(false)}
+              onSave={(updated) => {
+                updateTournament({
+                  accessToken: user.accessToken,
+                  uid: tournament.uid,
+                  updatedFields: updated,
+                }).then(res => {
+                  if (res.success) {
+                    setTournament(res.tournament);
+                    toast.success("トーナメントを更新しました");
+                  } else {
+                    toast.error("更新に失敗しました");
+                  }
+                });
+              }}
+            />
+          )}
+
+          {tournament && (
+              <div className=" mb-4">
+                <div className="profile-info">
+                  <div className="profile-info__inner mb-40 text-center">
+                    <div className="avatar-upload mb-24">
+                      <div className="avatar-edit">
+                        {/* 画像変更用：後で連携可 */}
+                        <input type="file" id="imageUpload" onChange={handleImageChange} accept=".png, .jpg, .jpeg" />
+                        <label htmlFor="imageUpload">
+                          <img src="/assets/images/icons/camera.svg" alt="" />
+                        </label>
+                      </div>
+                      <div className="avatar-preview">
+                        <div id="imagePreview">
+                          <img
+                            src={tournament.image || "/assets/images/default-avatar.png"}
+                            alt="Tournament"
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: "50%",
+                              display: "block",
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                    </div>
+                    <h5 className="profile-info__name mb-1">{tournament.name}</h5>
+                    <span className="profile-info__designation font-14">
+                      {tournament.prefecture}開催
+                    </span>
+                  </div>
+                  <ul className="profile-info-list">
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align gap-2">
+                        <FaRegMap />
+                        <span className="text text-heading fw-500">会場</span>
+                      </span>
+                      <span className="profile-info-list__info">{tournament.venue}</span>
+                    </li>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align gap-2">
+                        <MdOutlineDateRange />
+                        <span className="text text-heading fw-500">開催日</span>
+                      </span>
+                      <span className="profile-info-list__info">
+                        {tournament.start_date} ～ {tournament.end_date || "未定"}
+                      </span>
+                    </li>
+                    <li className="profile-info-list__item">
+                      <span className="profile-info-list__content flx-align gap-2">
+                        <AiFillAppstore />
+                        <span className="text text-heading fw-500">畳数</span>
+                      </span>
+                      <span className="profile-info-list__info">{tournament.mat_count}面</span>
+                    </li>
+                  </ul>
+                  <div className="w-100 d-flex justify-content-end px-3">
+                    <button
+                      className="btn btn-sm btn-secondary"
+                      onClick={() => {
+                        setEditTarget(tournament);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      編集
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            )}
+
             {/* welcome balance Content Start */}
             <div className="welcome-balance mt-2 mb-40 flx-between gap-2">
                 <div className="welcome-balance__left">
                 <h4 className="welcome-balance__title mb-0">
-                  {tournament?.name || "大会名取得中..."}【{tournament?.start_date.slice(0, 4)}】カテゴリー
+                  {tournament?.name || "大会名取得中..."}【{tournament?.start_date ? tournament.start_date.slice(0, 4) : "----"}】カテゴリー
                 </h4>
 
                 </div>
@@ -289,7 +409,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                                         category.gender === "男子"
                                           ? "btn btn-primary"
                                           : category.gender === "女子"
-                                          ? "btn btn-danger"
+                                          ? "btn btn-pink"
                                           : category.gender === "混合"
                                           ? "btn btn-warning"
                                           : ""
@@ -303,7 +423,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                                         category.gender === "男子"
                                           ? "btn btn-primary"
                                           : category.gender === "女子"
-                                          ? "btn btn-danger"
+                                          ? "btn btn-pink"
                                           : category.gender === "混合"
                                           ? "btn btn-warning"
                                           : ""
@@ -327,22 +447,25 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                                     {/* ...省略... */}
 
                                     {/* ゴミ箱アイコンボタン */}
-                                    <button
+                                    <span
                                       onClick={() => {
                                         setSelectedCategory(category);
                                         setShowConfirmModal(true);
                                       }}
-                                      className="btn btn-sm btn-danger position-absolute rounded-pill"
+                                      className="position-absolute rounded-pill d-flex justify-content-center align-items-center bg-danger text-white"
                                       style={{
-                                        bottom: "10px",
-                                        right: "10px",
-                                        padding: "6px 6px",
-                                        border: "1px solid #ccc"
+                                        bottom: "5px",
+                                        right: "5px",
+                                        width: "24px",
+                                        height: "24px",
+                                        fontSize: "10px",
+                                        border: "1px solid #ccc",
                                       }}
                                       title="ゴミ箱に移動"
                                     >
                                       <FaTrash size={10} />
-                                    </button>
+                                    </span>
+
                                   </div>
 
 

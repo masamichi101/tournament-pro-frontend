@@ -168,6 +168,46 @@ export const createTournament = async ({
 };
 
 
+interface UpdateTournamentType {
+  accessToken: string;
+  uid: string;
+  updatedFields: Partial<Omit<Tournament, "uid" | "createdAt" | "image">>; // image除外
+}
+
+export const updateTournament = async ({
+  accessToken,
+  uid,
+  updatedFields,
+}: UpdateTournamentType) => {
+  const body = JSON.stringify(updatedFields);
+
+  const options: RequestInit = {
+    method: "PATCH",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json", // ✅ これで JSON を指定
+    },
+    body,
+  };
+
+  try {
+    const response = await fetchAPI(`/api/tournaments/${uid}/`, options);
+
+    if (!response.success) {
+      console.error("Update error:", response.error);
+      return { success: false };
+    }
+
+    return { success: true, tournament: response.data };
+  } catch (error) {
+    console.error("Exception while updating tournament:", error);
+    return { success: false };
+  }
+};
+
+
+
+
 export interface Category {
   id?: number;
   uid:string;
