@@ -49,7 +49,7 @@ export interface Tournament {
     start_date: string;
     end_date: string | null;
     mat_count: number;
-    image?:string | null; // 画像の型をFileまたはstringに変更
+    image?:string | File; // 画像の型をFileまたはstringに変更
   }
 
 const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
@@ -71,6 +71,8 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
 
       const [showEditModal, setShowEditModal] = useState(false);
       const [editTarget, setEditTarget] = useState<Tournament | null>(null);
+
+      const [base64Image, setBase64Image] = useState<string | null>(null);
 
 
 
@@ -194,23 +196,23 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
       };
 
 
-      const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
         reader.onloadend = async () => {
-          const base64Image = reader.result as string;
+          const base64 = reader.result as string;
           const res = await updateTournament({
             accessToken: user.accessToken,
             uid: tournament.uid,
-            updatedFields: { image: base64Image }, // image含めて送る
+            updatedFields: { image: base64 },
           });
           if (res.success) {
-            setTournament(res.tournament);
+            setTournament(res.tournament); // 最新画像に更新
             toast.success("画像を更新しました");
           } else {
-            toast.error("画像更新に失敗しました");
+            toast.error("画像の更新に失敗しました");
           }
         };
         reader.readAsDataURL(file);
@@ -233,7 +235,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                 updateTournament({
                   accessToken: user.accessToken,
                   uid: tournament.uid,
-                  updatedFields: updated,
+                  updatedFields: { image: base64Image },
                 }).then(res => {
                   if (res.success) {
                     setTournament(res.tournament);
@@ -253,7 +255,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                     <div className="avatar-upload mb-24">
                       <div className="avatar-edit">
                         {/* 画像変更用：後で連携可 */}
-                        <input type="file" id="imageUpload" onChange={handleImageChange} accept=".png, .jpg, .jpeg" />
+                        <input type="file" id="imageUpload" onChange={handleImageUpload} accept=".png, .jpg, .jpeg" />
                         <label htmlFor="imageUpload">
                           <img src="/assets/images/icons/camera.svg" alt="" />
                         </label>
@@ -261,7 +263,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                       <div className="avatar-preview">
                         <div id="imagePreview">
                           <img
-                            src={tournament.image || "/assets/images/default-avatar.png"}
+                            src={typeof tournament.image === "string" ? tournament.image : tournament.image ? URL.createObjectURL(tournament.image) : "/assets/images/default-avatar.png"}
                             alt="Tournament"
                             style={{
                               width: "100%",
