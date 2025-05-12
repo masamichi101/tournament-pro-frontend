@@ -42,7 +42,7 @@ export interface Tournament {
   uid:string;
   name: string;
   venue: string;
-  image: File | null;
+  image: File | string | null;
   mat_count: number;
   prefecture: string;
   startDate: string;
@@ -171,7 +171,7 @@ export const createTournament = async ({
 interface UpdateTournamentType {
   accessToken: string;
   uid: string;
-  updatedFields: Partial<Omit<Tournament, "uid" | "createdAt" | "image">>; // image除外
+  updatedFields: Partial<Omit<Tournament, "uid" | "createdAt" >>; // image除外
 }
 
 export const updateTournament = async ({

@@ -44,7 +44,7 @@ const TournamentEditModal: React.FC<TournamentEditModalProps> = ({
           type={type}
           className="form-control"
           name={name}
-          value={form[name] || ""}
+          value={typeof form[name] === "string" || typeof form[name] === "number" ? form[name] : ""}
           onChange={handleChange}
         />
       </div>
