@@ -1,0 +1,8 @@
+.btn-pink {
+  background-color: #f78fb3; /* お好みのピンク */
+  color: white;
+  border: none;
+}
+.btn-pink:hover {
+  background-color: #f368e0;
+}
