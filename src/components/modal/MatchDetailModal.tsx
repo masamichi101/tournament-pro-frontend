@@ -477,8 +477,86 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
           value={decision}
           onChange={(e) => setDecision(e.target.value)}
           placeholder="決まり手を入力 (例: 背負い投げ)"
+          list="decision-list"
           disabled={isDisabledDueToPlaceholder}
         />
+        <datalist id="decision-list">
+          {[
+            // 立技：投げ技（Tachi-waza）
+            "一本背負い",
+            "背負い投げ",
+            "大外刈",
+            "大内刈",
+            "小外刈",
+            "小内刈",
+            "内股",
+            "外巻込",
+            "大腰",
+            "腰車",
+            "釣込腰",
+            "払腰",
+            "払巻込",
+            "肩車",
+            "釣込腰",
+            "浮腰",
+            "浮落",
+            "支釣込足",
+            "出足払",
+            "膝車",
+            "足車",
+            "小内巻込",
+            "小外掛",
+            "払足",
+            "谷落",
+            "隅返",
+            "巴投げ",
+            "横車",
+            "後腰",
+            "背負落",
+            "体落",
+            "裏投",
+            "絞込投",
+            "隅落",
+            "巻込",
+            "引込返",
+            "内股すかし",
+            "足取",
+
+            // 寝技：抑込技（Osaekomi-waza）
+            "横四方固め",
+            "上四方固め",
+            "崩上四方固め",
+            "崩袈裟固め",
+            "袈裟固め",
+            "縦四方固め",
+            "肩固め",
+
+            // 寝技：絞技（Shime-waza）
+            "送襟絞",
+            "片襟絞",
+            "十字絞",
+            "裸絞",
+            "片手絞",
+            "両手絞",
+            "三角絞",
+            "抱絞",
+            "腕絡絞",
+
+            // 寝技：関節技（Kansetsu-waza）
+            "腕緘",
+            "腕挫十字固",
+            "腕挫膝固",
+            "腕挫腋固",
+            "腕挫腹固",
+            "腕挫腕固",
+            "合技",  // 投げ＋抑込など
+            "反則勝ち",
+            "棄権",
+          ].map((technique) => (
+            <option key={technique} value={technique} />
+          ))}
+        </datalist>
+
         <div className={`time-input mb-3 ${winnerDisable || isDisabledDueToPlaceholder ? "opacity-50" : ""}`}>
           <label className="modal-label">試合時間</label>
           <div className="d-flex gap-2">
