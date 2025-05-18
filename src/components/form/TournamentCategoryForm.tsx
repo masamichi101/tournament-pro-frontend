@@ -50,14 +50,13 @@ const TournamentCategoryForm: React.FC<TournamentCategoryFormProps> = ({
   const [availableMatchDays, setAvailableMatchDays] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log("開始日:", tournamentStart);
-    console.log("終了日:", tournamentEnd);
+
     const start = new Date(tournamentStart);
     const end = tournamentEnd ? new Date(tournamentEnd) : start;
 
     const days: string[] = [];
     const current = new Date(start);
-    console.log(current)
+
 
     while (current <= end) {
       days.push(current.toISOString().split("T")[0]); // 'YYYY-MM-DD' 形式

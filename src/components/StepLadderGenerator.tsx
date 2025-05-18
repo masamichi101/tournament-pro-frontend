@@ -520,7 +520,7 @@ const StepLadderGenerator = ({
 
   const handleUpdateMatch = async (matchData) => {
     if (!selectedMatchDetail) return;
-    console.log("matchData",matchData)
+
     try {
       const requestData = {
         ...matchData,
@@ -539,8 +539,7 @@ const StepLadderGenerator = ({
 
         // 🔹 既存の勝者情報を取得
         const previousWinner = selectedMatchDetail.winner || null;
-        console.log("selectedMatchDetails",selectedMatchDetail)
-        console.log("previousWinner",previousWinner)
+
 
         if (winner === undefined && loser === undefined) return;
         if (
@@ -608,9 +607,6 @@ const StepLadderGenerator = ({
 
               }
 
-              if (player.loser !== originalLoser) {
-                console.log(`🧪 FRONTEND: player=${player.name} ID=${player.id} loser: ${originalLoser} → ${player.loser}`);
-              }
               updatedPreviousLevel[matchKey] = player;
             }
           });

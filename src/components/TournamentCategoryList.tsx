@@ -1,8 +1,8 @@
 
 
 'use client'
-import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory, updateTournament} from '@/action/tournament';
-import React, { useEffect, useState } from 'react';
+import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory, updateTournament, updateTournamentCategoryMatchDay} from '@/action/tournament';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import TournamentCategoryForm from './form/TournamentCategoryForm';
 import { UserType } from 'lib/nextauth';
@@ -17,6 +17,7 @@ import TournamentEditModal from './modal/TournamentEditModal';
 import { MdOutlineDateRange } from "react-icons/md";
 import { FaRegMap } from "react-icons/fa";
 import { AiFillAppstore } from "react-icons/ai";
+import MatchDayEditModal from './modal/MatchDayEditModal';
 
 
 interface TournamentCategoryFormData {
@@ -61,7 +62,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
 
       const [showConfirmModal, setShowConfirmModal] = useState(false);
       const [selectedCategory, setSelectedCategory] = useState<TournamentCategory | null>(null);
-
+      const [showMatchDayModal, setShowMatchDayModal] = useState(false);
       const [showTrashModal, setShowTrashModal] = useState(false);
       const [deletedCategories, setDeletedCategories] = useState<TournamentCategory[]>([]);
       const [loadingTrash, setLoadingTrash] = useState(false);
@@ -84,7 +85,6 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
             setLoading(true)
             try{
               const tournamentRes = await getTournament({ accessToken: user.accessToken, uid });
-              console.log("tournamentRes.tournament", tournamentRes.tournament);
               const tournamentsDetailRes = await getTournamentCategoryList({ uid: uid});
               if(tournamentsDetailRes.success && tournamentRes.success){
                 setCategories(tournamentsDetailRes.categories || [])
@@ -217,6 +217,27 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
         };
         reader.readAsDataURL(file);
       };
+
+      const handleSaveMatchDay = useCallback(async (newMatchDay: string) => {
+
+        if (!selectedCategory) return;
+
+        const res = await updateTournamentCategoryMatchDay({
+          accessToken: user.accessToken,
+          uid: selectedCategory.uid,
+          match_day: newMatchDay,
+        });
+
+        if (res.success) {
+          setCategories(prev =>
+            prev.map(c => c.uid === selectedCategory.uid ? { ...c, match_day: newMatchDay } : c)
+          );
+          toast.success("試合日を更新しました");
+        } else {
+          toast.error("更新に失敗しました");
+        }
+      }, [selectedCategory, user.accessToken]);
+
 
 
 
@@ -397,11 +418,19 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                                     >
 
                                     </div>
-                                    <span className={"font-14 m-1 px-2 py-3 btn btn-warning"}>
+                                    <span
+                                      className="font-14 m-1 px-2 py-3 btn btn-warning"
+                                      onClick={() => {
+                                        setSelectedCategory(category);
+                                        setShowMatchDayModal(true);
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                    >
                                       {category.match_day
                                         ? `${new Date(category.match_day).getMonth() + 1}/${new Date(category.match_day).getDate()}`
                                         : "-"}
                                     </span>
+
                                     <span className={`font-14 m-1 px-2 py-3 ${
                                        category.match_type === "個人戦"? "btn btn-secondary": "btn btn-dark"}`}>
                                     {category.match_type}
@@ -504,6 +533,15 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                 setPermanentDeleteTarget(null);
               }}
             />
+            <MatchDayEditModal
+              show={showMatchDayModal}
+              matchDay={selectedCategory?.match_day || null}
+              tournamentStart={tournament?.start_date}
+              tournamentEnd={tournament?.end_date || null}
+              onClose={() => setShowMatchDayModal(false)}
+              onSave={handleSaveMatchDay}
+            />
+
             <TrashCategoryModal
               show={showTrashModal}
               onClose={() => setShowTrashModal(false)}
