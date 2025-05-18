@@ -293,7 +293,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -332,7 +332,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
 
                 <option value="0">0</option>
@@ -361,7 +361,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                   }
                 })
               }
-              disabled={winnerDisable || isDisabledDueToPlaceholder}
+              disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -390,7 +390,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -409,7 +409,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -428,7 +428,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -456,7 +456,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
               >
                 <option value="0">0</option>
                 <option value="1">1</option>
@@ -477,7 +477,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
           value={decision}
           onChange={(e) => setDecision(e.target.value)}
           placeholder="決まり手を入力 (例: 背負い投げ)"
-          disabled={winnerDisable || isDisabledDueToPlaceholder}
+          disabled={isDisabledDueToPlaceholder}
         />
         <div className={`time-input mb-3 ${winnerDisable || isDisabledDueToPlaceholder ? "opacity-50" : ""}`}>
           <label className="modal-label">試合時間</label>
