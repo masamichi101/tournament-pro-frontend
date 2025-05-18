@@ -48,13 +48,13 @@ const LoserPlayersModal: React.FC<LoserPlayersModalProps> = ({
   const selectedSet = new Set(
     selectedThirdPlayers.map(player => `${player.level}-${player.match_number}`)
   );
-  console.log(selectedSet);
+
 
   // matches をフィルタリングし、selectedSet に存在しない組み合わせのみを表示
   const filteredMatches = matches.filter(
     match => !selectedSet.has(`${match.level}-${match.match_number}`)
   );
-  console.log(filteredMatches);
+
 
 
 

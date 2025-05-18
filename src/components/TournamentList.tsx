@@ -42,7 +42,7 @@ const TournamentList = ({ user }: { user: UserType }) => {
 
 
               if(tournamentsRes.success){
-                console.log("tournamentsRes.tournaments",tournamentsRes.tournaments)
+
                 setTournaments(tournamentsRes.tournaments || [])
               }
             }catch(error){

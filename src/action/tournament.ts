@@ -152,6 +152,7 @@ export const createTournament = async ({
     body,
   };
 
+
   try {
     const response = await fetchAPI("/api/tournaments/", options);
 
@@ -189,6 +190,7 @@ export const updateTournament = async ({
     },
     body,
   };
+
 
   try {
     const response = await fetchAPI(`/api/tournaments/${uid}/`, options);
@@ -323,6 +325,44 @@ export const createTournamentCategory = async ({
     return { success: false, category: null };
   }
 };
+
+interface UpdateCategoryMatchDayType {
+  accessToken: string;
+  uid: string;
+  match_day: string;
+}
+
+export const updateTournamentCategoryMatchDay = async ({
+  accessToken,
+  uid,
+  match_day,
+}: UpdateCategoryMatchDayType) => {
+  const body = JSON.stringify({ match_day });
+
+  const options: RequestInit = {
+    method: "PATCH",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body,
+  };
+
+  try {
+    const response = await fetchAPI(`/api/tournament_categories/${uid}/update-match-day/`, options);
+
+    if (!response.success) {
+      console.error("Update error:", response.error);
+      return { success: false };
+    }
+
+    return { success: true, match_day: response.data.match_day };
+  } catch (error) {
+    console.error("Exception while updating match_day:", error);
+    return { success: false };
+  }
+};
+
 
 
 
