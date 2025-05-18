@@ -312,7 +312,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
                     }
                   })
                 }
-                disabled={winnerDisable || isDisabledDueToPlaceholder}
+                disabled={isDisabledDueToPlaceholder}
                 >
                 <option value="0">0</option>
                 <option value="1">1</option>
