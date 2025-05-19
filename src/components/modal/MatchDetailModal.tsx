@@ -487,6 +487,8 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
             "背負い投げ",
             "大外刈",
             "大内刈",
+            "大内返",
+            "大外返",
             "小外刈",
             "小内刈",
             "内股",
@@ -552,6 +554,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
             "合技",  // 投げ＋抑込など
             "反則勝ち",
             "棄権",
+            "判定",
           ].map((technique) => (
             <option key={technique} value={technique} />
           ))}

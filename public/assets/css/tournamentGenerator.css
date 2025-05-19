@@ -196,12 +196,26 @@ input:focus {
 }
 .match-detail-number{
   position: absolute;
-  top:10px;
-  left:-60px;
-  font-size:13px;
+  top:-10px;
+  left:-25px;
+  font-size:10px;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  border:solid 1px #007bff;
+  padding:1px;
+  border-radius: 5px;;
+}
+.mat-matchOrder{
+  position: absolute;
+  top:8px;
+  left:-140px;
+  font-size:15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  font-weight: bold;
 }
 
