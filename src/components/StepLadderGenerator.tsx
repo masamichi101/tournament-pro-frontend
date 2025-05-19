@@ -798,27 +798,39 @@ const StepLadderGenerator = ({
                               <span>{player ? player.name : ""}</span>
                         )}
                       </div>
-                      {levelIndex === 0 && (
-                        <div className="match-index">{matchCount}</div>
-                      )}
+
                       {!confirm ? (
                         <>
 
                           <div className="match-detail opacity-50" >
                               <BsFileEarmarkDiff />
                           </div>
+
                         </>
 
                       ) :
                       <>
-                        <div className="match-detail-number" >
-                          {parseInt(level.replace("回戦", ""), 10) - 1}-{matchCount}
-                        </div>
+                        {levelIndex !== 0 && (
+                          <div className="match-detail-number" >
+                            {parseInt(level.replace("回戦", ""), 10) - 1}-{matchCount}
+                          </div>
+                        )}
+
                         <div className="match-detail" onClick={() => handleMatchDetailClick(level, matchCount)}>
                           <BsFileEarmarkDiff />
                         </div>
+                        <div className="mat-matchOrder" >
+                          {player?.mat && player?.match_order ? (
+                            <>
+                              <span className="mat">{player.mat}試合場</span>
+                              <span className="matchOrder">{player.match_order}試合目</span>
+                            </>
+                          ) : (
+                            <span className="mat"></span>
+                          )}
+                        </div>
                       </>
-
+ 
                       }
 
 
