@@ -30,6 +30,8 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
     const [honsenStepladderUid,setHonsenStepladderUid] =useState("");
     const [loading, setLoading] = useState(false);
     const [loading2, setLoading2] = useState(false);
+    const [isTournamentsLoading, setIsTournamentsLoading] = useState(true);
+    const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
     const [loserIds, setLoserIds] = useState<{id:number;level:number;match_number:number;name:string;zenjuren_id:string;}[]>([]);
     const [thirdLoserIds, setThirdLoserIds] = useState<{id:number;level:number;match_number:number;name:string;zenjuren_id:string;}[]>([]);
 
@@ -46,12 +48,15 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
     useEffect(() => {
       const fetchStepLadderData = async () => {
         try {
+          setIsTournamentsLoading(true);
           const tournamentRes = await getTournamentsByUserAccount(user.accessToken);
           if (tournamentRes.success) {
             setTournaments(tournamentRes.tournaments || []);
           }
         } catch (error) {
           console.error("Failed to fetch tournament data:", error);
+        } finally {
+          setIsTournamentsLoading(false); // ← 追加
         }
       };
       fetchStepLadderData();
@@ -71,12 +76,15 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
 
       if (selectedUid) {
         try {
+          setIsCategoriesLoading(true);
           const categoryRes = await getTournamentCategoryList({ uid: selectedUid });
           if (categoryRes.success) {
             setCategories(categoryRes.categories || []);
           }
         } catch (error) {
           console.error("カテゴリーの取得に失敗しました:", error);
+        }finally {
+          setIsCategoriesLoading(false); // ← 追加
         }
       } else {
         setCategories([]);
@@ -229,7 +237,13 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
                         <span className="fw-300">
                             総大会数
                         </span>
-                        <h4 className="mb-0 text-primary">{tournaments.length}</h4>
+                        {isTournamentsLoading ? (
+                          <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                        ) : (
+                          <h4 className="mb-0 text-primary">{tournaments.length}</h4>
+                        )}
                     </div>
                   </div>
 
@@ -261,7 +275,13 @@ const CreateStepLadder= ({ user }: { user: UserType }) => {
                         <span className="fw-300">
                             総カテゴリー数
                         </span>
-                        <h4 className="mb-0 text-primary">{categories.length}</h4>
+                        {isCategoriesLoading ? (
+                          <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                          </div>
+                        ) : (
+                          <h4 className="mb-0 text-primary">{categories.length}</h4>
+                        )}
                     </div>
                   </div>
                   <div className="select-has-icon">
