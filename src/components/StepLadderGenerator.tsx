@@ -542,12 +542,16 @@ const StepLadderGenerator = ({
 
 
         if (winner === undefined && loser === undefined) return;
-        if (
+        const isSameWinner =
           selectedMatchDetail.winner &&
           typeof selectedMatchDetail.winner === "object"
             ? selectedMatchDetail.winner.id === winner
-            : selectedMatchDetail.winner === winner
-        ) {
+            : selectedMatchDetail.winner === winner;
+
+        const isMatChanged = selectedMatchDetail.winner?.mat !== matchData.mat;
+        const isMatchOrderChanged = selectedMatchDetail.winner?.match_order !== matchData.match_order;
+
+        if (isSameWinner && !isMatChanged && !isMatchOrderChanged) {
           return;
         }
 
@@ -613,13 +617,19 @@ const StepLadderGenerator = ({
 
           const updatedMatchData =
             winner === null
-              ? null
-              : {
-                  ...winnerPlayer,
-                  loser: false,
+              ? {
+                  ...loserPlayer,
                   mat: matchData.mat,
                   match_order: matchData.match_order,
+                  loser: true,
+                }
+              : {
+                  ...winnerPlayer,
+                  mat: matchData.mat,
+                  match_order: matchData.match_order,
+                  loser: false,
                 };
+
 
 
           return {
@@ -820,17 +830,17 @@ const StepLadderGenerator = ({
                           <BsFileEarmarkDiff />
                         </div>
                         <div className="mat-matchOrder" >
-                          {player?.mat && player?.match_order ? (
+                          {player?.mat || player?.match_order ? (
                             <>
-                              <span className="mat">{player.mat}試合場</span>
-                              <span className="matchOrder">{player.match_order}試合目</span>
+                              <span className="mat">{player.mat}<small>試合場</small></span>
+                              <span className="matchOrder">{player.match_order}<small>試合目</small></span>
                             </>
                           ) : (
                             <span className="mat"></span>
                           )}
                         </div>
                       </>
- 
+
                       }
 
 
