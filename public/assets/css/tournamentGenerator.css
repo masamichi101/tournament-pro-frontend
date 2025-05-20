@@ -209,13 +209,21 @@ input:focus {
 }
 .mat-matchOrder{
   position: absolute;
-  top:8px;
-  left:-140px;
-  font-size:15px;
+  top:4px;
+  left:-125px;
+  color:#015bbd;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
   font-weight: bold;
+}
+.mat-matchOrder span{
+  font-size:15px;
+  font-weight: normal;
+}
+.mat-matchOrder small{
+  font-size:10px;
+  font-weight: normal;
 }
 
