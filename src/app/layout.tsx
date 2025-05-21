@@ -1,6 +1,9 @@
 import React from "react";
 import BootstrapInit from "@/helper/BootstrapInit";
 import RouteScrollToTop from "@/helper/RouteScrollToTop";
+import { SpeedInsights } from '@vercel/speed-insights/next';
+
+
 import "./font.css";
 import "./globals.scss";
 
@@ -18,6 +21,7 @@ export default function RootLayout({ children }) {
         <BootstrapInit />
         <RouteScrollToTop />
          {children}
+        <SpeedInsights />
       </body>
     </html>
   );

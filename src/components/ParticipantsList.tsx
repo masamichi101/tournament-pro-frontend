@@ -28,17 +28,23 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [isTournamentsLoading, setIsTournamentsLoading] = useState(true);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState(false);
+
 
 
   useEffect(() => {
     const fetchTournamentData = async () => {
       try {
+        setIsTournamentsLoading(true);
         const tournamentRes = await getTournamentsByUserAccount(user.accessToken);
         if (tournamentRes.success) {
           setTournaments(tournamentRes.tournaments || []);
         }
       } catch (error) {
         console.error("Failed to fetch tournament data:", error);
+      }finally {
+        setIsTournamentsLoading(false); // ← 追加
       }
     };
     fetchTournamentData();
@@ -53,6 +59,7 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
 
     if (selectedUid) {
       try {
+        setIsCategoriesLoading(true);
         const categoryRes = await getTournamentCategoryListByUserAccount({ uid: selectedUid, accessToken: user.accessToken });
 
         if (categoryRes.success) {
@@ -60,7 +67,10 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
         }
       } catch (error) {
         console.error("カテゴリーの取得に失敗しました:", error);
+      }finally {
+        setIsCategoriesLoading(false); // ← 追加
       }
+
     } else {
       setCategories([]);
     }
@@ -155,10 +165,14 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
               <div className="d-flex justify-content-between align-items-center">
                 <h6 className="mb-0">大会名</h6>
                 <div className="welcome-balance__right flx-align gap-2">
-                    <span className="fw-300">
-                        総大会数
-                    </span>
+                <span className="fw-300">総大会数</span>
+                  {isTournamentsLoading ? (
+                    <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  ) : (
                     <h4 className="mb-0 text-primary">{tournaments.length}</h4>
+                  )}
                 </div>
               </div>
 
@@ -190,7 +204,13 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
                     <span className="fw-300">
                         総カテゴリー数
                     </span>
-                    <h4 className="mb-0 text-primary">{categories.length}</h4>
+                    {isCategoriesLoading ? (
+                      <div className="spinner-border spinner-border-sm text-secondary" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                    ) : (
+                      <h4 className="mb-0 text-primary">{categories.length}</h4>
+                    )}
                 </div>
               </div>
               <div className="select-has-icon">
