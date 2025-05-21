@@ -11,6 +11,7 @@ import { MdCreate } from "react-icons/md";
 import { TbTournament } from "react-icons/tb";
 import { Toaster } from "react-hot-toast";
 
+
 const MasterLayout = ({ children, user }) => {
 
     const pathname = usePathname();
