@@ -497,12 +497,14 @@ const StepLadderGenerator = ({
       const nextLevelKey = `${levelNumber + 1}回戦`;
       const nextMatchKey = Math.floor((matchNumber + 1) / 2);
       const nextLevelWinner = stepLadderData?.[nextLevelKey]?.[nextMatchKey];
+      console.log("nextLevelWinner", nextLevelWinner);
+      const isWinnerLocked = !!nextLevelWinner?.id;
 
       setSelectedMatchDetail({
         level,
         match,
         previousLevelPlayers,
-        winnerDisable: !!nextLevelWinner, // ← 上の階層に winner がいるなら編集不可
+        winnerDisable:isWinnerLocked, // ← 上の階層に winner がいるなら編集不可
         levelLabel,
         winner: response.match.winner ?? null,
       });
@@ -593,26 +595,25 @@ const StepLadderGenerator = ({
           const updatedPreviousLevel = { ...prevData[previousLevelKey] };
 
           Object.keys(updatedPreviousLevel).forEach((matchKey) => {
-            const player = updatedPreviousLevel[matchKey];
+            const original = updatedPreviousLevel[matchKey];
+            if (!original) return;
 
-            if (player) {
-              const original = updatedPreviousLevel[matchKey];
-              if (!original) return;
+            const player = { ...original }; // 安全にコピー
+            const playerId = player.id;
 
-              const player = { ...original }; // 🔴 ここで参照切り離す
-              const originalLoser = player.loser;
-
-              if (winner === null) {
-                player.loser = false;
+            if (winner === null) {
+              player.loser = false;
+            } else {
+              if (playerId === winner) {
+                player.loser = false; // 勝者 → loser = false
+              } else if (playerId === loser && previousWinner !== winner) {
+                player.loser = true; // 敗者 → loser = true
               } else {
-                if (Number(player.id) === Number(loser) && previousWinner !== winner) {
-                  player.loser = true;
-                }
-
+                // 変更されてないプレイヤーの loser フラグは維持
               }
-
-              updatedPreviousLevel[matchKey] = player;
             }
+
+            updatedPreviousLevel[matchKey] = player;
           });
 
           const updatedMatchData =

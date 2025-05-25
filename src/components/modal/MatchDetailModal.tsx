@@ -499,7 +499,6 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
             "払腰",
             "払巻込",
             "肩車",
-            "釣込腰",
             "浮腰",
             "浮落",
             "支釣込足",
