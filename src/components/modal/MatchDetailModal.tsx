@@ -79,6 +79,19 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
   const isReadOnly = isLocked && lockedBy !== sessionId;
 
   useEffect(() => {
+    // 4分50秒（290秒）後にモーダルを閉じる
+    const timeoutId = setTimeout(() => {
+      console.log("⏱ モーダルを自動で閉じます");
+      onClose();
+    }, 290000); // 290,000ms = 4分50秒
+
+    // クリーンアップ（モーダルが閉じられた時にタイマー解除）
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
 
     const fetchMatchData = async () => {
 
