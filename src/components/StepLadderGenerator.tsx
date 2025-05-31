@@ -1,6 +1,6 @@
 "use client";
 
-import { createAllMatch, deleteAllMatch, getMatch, getStepLadder, toggleStepLadderConfirm, updateMatch, updateStepLadder } from "@/action/tournament";
+import { createAllMatch, deleteAllMatch, getMatch, getStepLadder, toggleStepLadderConfirm, tryLockMatch, unlockMatch, updateMatch, updateStepLadder } from "@/action/tournament";
 import { UserType } from "lib/nextauth";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { BsFileEarmarkDiff } from "react-icons/bs";
@@ -12,6 +12,8 @@ import LoadingModal from "./modal/LoadingModal";
 import LoserPlayersModal from "./modal/LoserPlayerModal";
 import { MatchDetailModal } from "./modal/MatchDetailModal";
 import PlayerModal from "./modal/PlayerModal";
+import { useSessionId } from "./context/SessonContext";
+
 
 interface StepLadderGeneratorProps {
   user:UserType;
@@ -120,15 +122,21 @@ const StepLadderGenerator = ({
   const [confirmMessage, setConfirmMessage] = useState<string>("");
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [selectedMatchDetail, setSelectedMatchDetail] = useState<{
+      matchId: string;
       match: string;
       level: string;
       levelLabel: string;
       previousLevelPlayers?: any[];
       winnerDisable?: boolean;
       winner?: any;
+      isLocked?: boolean;
+      lockedBy?: string;
     } | null>(null);
 
   const isFetching = useRef(false);
+
+  const { sessionId } = useSessionId();
+
 
   useEffect(() => {
     setStepLadderData(generateStepLadderData(initialStepLadderCount, stepLadderPlayersOrder));
@@ -454,6 +462,7 @@ const StepLadderGenerator = ({
 
     if (isFetching.current) return; // 🔹 すでにリクエスト中ならスキップ
     isFetching.current = true;
+    setLoadingModal(true);
 
 
 
@@ -481,7 +490,7 @@ const StepLadderGenerator = ({
     }
 
     try {
-      // 現在の試合データ取得
+      // 1. 試合情報を取得
       const response = await getMatch({
         step_ladder_uid: stepLadderUid,
         level: levelNumber,
@@ -493,28 +502,44 @@ const StepLadderGenerator = ({
         return;
       }
 
-      // 1階層上（次レベル）の winner を stepLadderData から参照して winnerDisable を判断
+      const matchId = response.match.id;
+
+      // 2. ロック取得
+      const lockResult = await tryLockMatch({
+        matchId,
+        accessToken: user.accessToken,
+        sessionId: sessionId,
+      });
+      console.log("ロック取得結果:", lockResult);
+
+
+
+      // 3. 上位試合に勝者がすでにいるか判定（編集不可フラグ用）
       const nextLevelKey = `${levelNumber + 1}回戦`;
       const nextMatchKey = Math.floor((matchNumber + 1) / 2);
       const nextLevelWinner = stepLadderData?.[nextLevelKey]?.[nextMatchKey];
-      console.log("nextLevelWinner", nextLevelWinner);
       const isWinnerLocked = !!nextLevelWinner?.id;
 
+      // 4. モーダル表示データセット
       setSelectedMatchDetail({
+        matchId: String(matchId),
         level,
         match,
         previousLevelPlayers,
-        winnerDisable:isWinnerLocked, // ← 上の階層に winner がいるなら編集不可
+        winnerDisable: isWinnerLocked,
         levelLabel,
         winner: response.match.winner ?? null,
+        isLocked: !lockResult.success,
+        lockedBy: lockResult.lockedBy,
+
       });
 
-
-        setIsDetailModalOpen(true);
-    } catch (error) {
-        console.error("試合データの取得に失敗しました:", error);
+      setIsDetailModalOpen(true); // ✅ モーダルを開く
+    } catch (err) {
+      console.error("エラー発生:", err);
     } finally {
-        isFetching.current = false;
+      setLoadingModal(false); // 🔁 ローディング終了
+      isFetching.current = false;
     }
   }, [stepLadderUid, stepLadderData]); // ✅ `useCallback` で不要な再生成を防ぐ
 
@@ -659,10 +684,30 @@ const StepLadderGenerator = ({
     }
   };
 
+  const handleCloseModal = async () => {
+    if (selectedMatchDetail?.lockedBy === sessionId) {
+      try {
+        console.log("unlockMatch 呼び出し", selectedMatchDetail.matchId, sessionId);
+        await unlockMatch({
+          matchId: Number(selectedMatchDetail.matchId),
+          accessToken: user.accessToken,
+          sessionId: sessionId,
+        });
+        console.log("ロック解除成功");
+      } catch (err) {
+        console.error("ロック解除中にエラー:", err);
+      }
+    } else {
+      console.log("ロックしていないので解除しません");
+    }
 
+    setIsDetailModalOpen(false);
+    setSelectedMatchDetail(null);
+  };
 
 
   const effectiveLoserIds = stepLadderType === "3位決定戦" ? thirdLoserIds : loserIds;
+
 
 
 
@@ -827,7 +872,8 @@ const StepLadderGenerator = ({
                           </div>
                         )}
 
-                        <div className="match-detail" onClick={() => handleMatchDetailClick(level, matchCount)}>
+                        <div className="match-detail" onClick={() => {console.log("Match detail clicked:", level, matchCount);
+                          handleMatchDetailClick(level, matchCount)}}>
                           <BsFileEarmarkDiff />
                         </div>
                         <div className="mat-matchOrder" >
@@ -877,6 +923,7 @@ const StepLadderGenerator = ({
       )}
       {isDetailModalOpen && selectedMatchDetail && (
         <MatchDetailModal
+          user={user} // ユーザー情報
           matCount={matCount} // トーナメントの規模
           matchCount={selectedMatchDetail.match} // 選択された試合番号
           levelCount={parseInt(selectedMatchDetail.level, 10) || 0}  // 試合のレベル
@@ -884,7 +931,9 @@ const StepLadderGenerator = ({
           stepLadderUid={stepLadderUid} // ステップラダーのUID
           previousLevelPlayers={selectedMatchDetail.previousLevelPlayers || []} // 前のレベルのプレイヤーデータ
           winnerDisable={selectedMatchDetail.winnerDisable} // 勝者選択の無効化
-          onClose={() => setIsDetailModalOpen(false)} // モーダルを閉じる処理
+          isLocked={selectedMatchDetail.isLocked} // ロック状態
+          lockedBy={selectedMatchDetail.lockedBy} // ロックしたユーザーのUID
+          onClose={() => handleCloseModal()} // モーダルを閉じる処理
           //onWinnerSelect={handleWinnerDecide}
           //onMatchOrderSelect={handleMatchOrderDecide}
           onSave={handleUpdateMatch}

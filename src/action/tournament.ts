@@ -857,3 +857,70 @@ export const getMatchesAll = async ({ stepLadderUid }: getMatchesAll) => {
   }
 };
 
+
+interface LockMatch {
+  matchId: number;
+  accessToken: string;
+  sessionId: string; // オプションでセッションIDを受け取る
+}
+
+interface LockMatchSuccessResponse {
+  success: true;
+  lockedBy: string; // uid は文字列型を想定
+}
+
+interface LockMatchFailureResponse {
+  success: false;
+  lockedBy: string | null;
+}
+
+type LockMatchResponse = LockMatchSuccessResponse | LockMatchFailureResponse;
+
+
+export const tryLockMatch = async ({ matchId, accessToken,sessionId, }: LockMatch): Promise<LockMatchResponse> => {
+  const body = JSON.stringify({
+    match_id: matchId,
+    session_id: sessionId, // ✅ 追加
+  });
+  console.log("tryLockMatch body:", body);
+
+  const options: RequestInit = {
+    method: "POST",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body,
+  };
+
+  const result = await fetchAPI("/api/match-edit/lock/", options);
+
+  if (result?.success && result?.data?.locked_by_uid) {
+    return { success: true, lockedBy: result.data?.locked_by_session_id || null };
+  }
+
+  return {
+    success: false,
+    lockedBy: result?.data?.locked_by_session_id || null,
+  };
+};
+
+
+
+export const unlockMatch = async ({
+  matchId,
+  accessToken,
+  sessionId,
+}: LockMatch) => {
+
+
+  const options: RequestInit = {
+    method: "DELETE",
+    headers: {
+      Authorization: `JWT ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  await fetchAPI(`/api/match-edit/unlock/${matchId}/?session_id=${sessionId}`, options);
+};

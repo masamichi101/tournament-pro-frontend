@@ -267,6 +267,7 @@ const MatchOrderByDate = ({
 
       {isModalOpen && selectedMatch && (
         <MatchDetailModal
+          user={user}
           matchCount={String(selectedMatch.match_number)}
           levelCount={selectedMatch.level}
           levelLabel={selectedMatch.name}
