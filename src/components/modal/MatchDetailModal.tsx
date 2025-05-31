@@ -6,6 +6,7 @@ import "../../../public/assets/css/matchDetailModal.css";
 import { getMatch } from "@/action/tournament";
 import ConfirmModal from "./ConfirmModal";
 import { z } from "zod";
+import { useSessionId } from "../context/SessonContext";
 
 const schema = z.object({
   matchOrder: z
@@ -16,6 +17,7 @@ const schema = z.object({
 });
 
 interface MatchDetailModalProps {
+  user: { uid: string; name: string }; // 🔹 ユーザー情報を受け取る
   matCount: number;
   matchCount: string;
   levelCount: number;
@@ -23,13 +25,18 @@ interface MatchDetailModalProps {
   previousLevelPlayers: any[]; // 前のレベルのプレイヤー
   winnerDisable: boolean;
   levelLabel: string;
+  isLocked?: boolean;// 🔹 オプション: ロック状態を示す
+  lockedBy?: string; // 🔹 オプション: ロックしたユーザーの名前
   onClose: () => void;
   onSave: (matchData: any) => void;
+
+
   //onWinnerSelect: (winner: any, loser: any) => void;
   //onMatchOrderSelect: (newOrder: number, mat: number) => void;
 }
 
 export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
+    user,
     matCount,
     matchCount,
     levelCount,
@@ -37,6 +44,8 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
     previousLevelPlayers,
     winnerDisable,
     levelLabel,
+    isLocked,
+    lockedBy,
     onClose,
     onSave,
     //onWinnerSelect,
@@ -65,6 +74,9 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
   const [tempWinner, setTempWinner] = useState<number | null>(null);
   const [tempLoser, setTempLoser] = useState<number | null>(null);
 
+  const { sessionId } = useSessionId();
+
+  const isReadOnly = isLocked && lockedBy !== sessionId;
 
   useEffect(() => {
 
@@ -140,7 +152,10 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
 
   const handleSave = () => {
 
-
+    if (isLocked && lockedBy !== sessionId) {
+      console.warn("この試合はロックされています。他のユーザーが記録中です。");
+      return;
+    }
 
     const matchData = {
       matchId: matchId,  // matchId を追加
@@ -206,7 +221,12 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
             </div>
         </div>
         ) : (
-      <div className="modal-content">
+      <div className="modal-content position-relative">
+        {isReadOnly && (
+          <div className="locked-overlay position-absolute top-0 start-0 w-100 h-75 d-flex align-items-center justify-content-center" style={{ backgroundColor: "rgba(0,0,0,0.6)", zIndex: 10 }}>
+            <div className="text-white fw-bold fs-4">他のユーザーが記録しています</div>
+          </div>
+        )}
         <h4 className="modal-title ">
           {levelLabel}
         </h4>
@@ -591,13 +611,13 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
 
         {/* アクションボタン */}
         <div className="modal-actions">
-          <button className="btn btn-primary" onClick={handleSave}>
+          <button className="btn btn-primary" onClick={handleSave} disabled={isReadOnly}>
             保存
           </button>
           <button className="btn btn-secondary" onClick={onClose}>
             キャンセル
           </button>
-          <button className="btn btn-danger" onClick={handleResetClick} disabled={winnerDisable}>
+          <button className="btn btn-danger" onClick={handleResetClick} disabled={winnerDisable || isReadOnly}>
             リセット
           </button>
         </div>
