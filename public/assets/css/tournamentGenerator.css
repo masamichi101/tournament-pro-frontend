@@ -192,7 +192,7 @@ input:focus {
   background: #ffffff;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 100;
 }
 .match-detail-number{
   position: absolute;
