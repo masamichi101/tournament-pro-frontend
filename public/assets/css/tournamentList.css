@@ -1,0 +1,12 @@
+.dashboard-widget__ribbon{
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff; /* Bootstrap primary color */
+  border-radius: 0.25rem;
+}

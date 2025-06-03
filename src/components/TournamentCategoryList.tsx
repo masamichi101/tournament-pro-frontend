@@ -1,7 +1,7 @@
 
 
 'use client'
-import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, getTournamentCategoryListByUserAccount, toggleDeleteTournamentCategory, updateTournament, updateTournamentCategoryMatchDay} from '@/action/tournament';
+import {createTournamentCategory, deleteTournamentCategoryPermanently, getTournament, getTournamentCategoryDeletedList, getTournamentCategoryList, toggleDeleteTournamentCategory, updateTournament, updateTournamentCategoryMatchDay} from '@/action/tournament';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import TournamentCategoryForm from './form/TournamentCategoryForm';
@@ -393,7 +393,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                         ) : (
                         // トーナメントカード一覧
                         <div className="row gy-4">
-                            {categories.map((category, index) => (
+                            {categories.slice().reverse().map((category, index) => (
                             <div className="col-xl-3 col-sm-6" key={index}>
                                 <div className="dashboard-widget">
                                 <img
