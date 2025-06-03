@@ -14,13 +14,15 @@ interface ParticipantsFormData {
 interface ParticipantsFormProps {
   onSubmit: (data: ParticipantsFormData) => void;
   tournamentCategoryUid: string;
+  categoryGender?: string; // オプションのプロパティとして追加
 }
 
 const ParticipantsForm: React.FC<ParticipantsFormProps> = ({
   onSubmit,
   tournamentCategoryUid,
+  categoryGender, // デフォルト値を空文字列に設定
 }) => {
-  const { register, handleSubmit,reset, formState: { errors } } = useForm<ParticipantsFormData>({
+  const { register, handleSubmit,reset,setValue, formState: { errors } } = useForm<ParticipantsFormData>({
     defaultValues: {
       tournamentCategoryUid:tournamentCategoryUid,
       name: "",
@@ -30,6 +32,18 @@ const ParticipantsForm: React.FC<ParticipantsFormProps> = ({
 
     },
   });
+
+  useEffect(() => {
+    if (!tournamentCategoryUid) return;
+    if (categoryGender === "男子") {
+      setValue("gender", "male");
+    } else if (categoryGender === "女子") {
+      setValue("gender", "female");
+    } else {
+      setValue("gender", ""); // その他または未定義
+    }
+  }, [categoryGender, tournamentCategoryUid, setValue]);
+
 
 
   const handleFormSubmit = (data: ParticipantsFormData) => {
