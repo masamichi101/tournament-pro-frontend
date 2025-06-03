@@ -105,9 +105,9 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
       const res = await deletePlayer({playerId:selectedPlayer.id,accessToken:user.accessToken});
       if (res.success) {
         setParticipants(participants.filter((participant) => participant.id !== selectedPlayer.id));
-        alert("プレーヤーを削除しました");
+        toast.success("プレーヤーを削除しました");
       } else {
-        alert("プレーヤーを削除できませんでした");
+        toast.error("プレーヤーを削除できませんでした");
       }
       setIsModalOpen(false); // モーダルを閉じる
       setSelectedPlayer(null); // 選択をリセット

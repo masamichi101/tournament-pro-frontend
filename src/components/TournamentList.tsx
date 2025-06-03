@@ -10,6 +10,7 @@ import Link from "next/link";
 import { UserType } from 'lib/nextauth';
 import LoadingModal from './modal/LoadingModal';
 import toast from "react-hot-toast";
+import "../../public/assets/css/tournamentList.css";
 
 
 
@@ -159,7 +160,10 @@ const TournamentList = ({ user }: { user: UserType }) => {
                                 <div key={index} >
 
 
-                                        <div className="dashboard-widget">
+                                        <div className="dashboard-widget position-relative">
+                                        <div className="dashboard-widget__ribbon" >
+                                        {new Date(tournament.start_date).getFullYear()}年
+                                        </div>
                                         <img
                                             src="/assets/images/shapes/widget-shape1.png"
                                             alt=""
