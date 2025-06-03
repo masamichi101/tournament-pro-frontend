@@ -49,7 +49,18 @@ const ParticipantsForm: React.FC<ParticipantsFormProps> = ({
   const handleFormSubmit = (data: ParticipantsFormData) => {
 
     onSubmit(data); // 親コンポーネントの onSubmit を呼び出す
-    reset(); // フォームをリセット
+    reset({
+      tournamentCategoryUid: tournamentCategoryUid,
+      name: "",
+      dojo: "",
+      zenjuren_id: null,
+      gender:
+        categoryGender === "男子"
+          ? "male"
+          : categoryGender === "女子"
+          ? "female"
+          : "",
+    }); // フォームをリセット
   };
 
   return (
