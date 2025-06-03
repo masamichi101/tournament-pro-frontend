@@ -239,7 +239,7 @@ const ParticipantsList = ({ user }: { user: UserType }) => {
             <h6 className="title">参加者追加</h6>
           </div>
           <div className="card-body">
-            <ParticipantsForm onSubmit={onSubmit} tournamentCategoryUid={selectedCategory?.uid || ""} />
+            <ParticipantsForm onSubmit={onSubmit} tournamentCategoryUid={selectedCategory?.uid || ""} categoryGender={selectedCategory?.gender || ""}/>
           </div>
       </div>
       <div className="d-flex justify-content-between align-items-center">
