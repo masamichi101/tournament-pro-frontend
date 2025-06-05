@@ -13,6 +13,7 @@ import { Toaster } from "react-hot-toast";
 import { SessionProvider } from "@/components/context/SessonContext";
 
 
+
 const MasterLayout = ({ children, user }) => {
 
     const pathname = usePathname();
@@ -53,11 +54,13 @@ const MasterLayout = ({ children, user }) => {
                                         src="/assets/images/logo/logo.png"
                                         alt=""
                                         className="white-version"
+                                        style={{ width: "70px", height: "auto" }}
                                     />
                                     <img
                                         src="/assets/images/logo/white-logo-two.png"
                                         alt=""
                                         className="dark-version"
+                                        style={{ width: "70px", height: "auto" }}
                                     />
                                 </Link>
                                 <Link scroll={false} href="/" className="logo favicon mb-48">

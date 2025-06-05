@@ -6,9 +6,9 @@ import { useForm, SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import Link from "next/link";
-import ThemeToggle from "./ThemeToggle";
 import React from "react";
 import { temporarrySignup } from "@/action/user"
+import toast from "react-hot-toast";
 
 
 const schema = z.object({
@@ -73,7 +73,8 @@ const Register = () => {
 
       setIsSignUp(true);
     } catch (error) {
-      console.error("サインアップに失敗しました")
+      toast.error("サインアップに失敗しました");
+
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +101,7 @@ const Register = () => {
       ) : (
 
           <div className="account-content">
-            <Link scroll={false} href="/" className="logo mb-64">
+            <Link scroll={false} href="/" className="logo mb-64 d-flex justify-content-center">
               <img
                 src="/assets/images/logo/logo.png"
                 alt=""
