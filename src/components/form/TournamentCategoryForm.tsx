@@ -75,6 +75,7 @@ const TournamentCategoryForm: React.FC<TournamentCategoryFormProps> = ({
   }, [selectedMatchType, selectedGender]);
 
   const handleFormSubmit = (data: TournamentCategoryFormData) => {
+    console.log("送信されるデータ:", data); 
     onSubmit(data); // 親コンポーネントの onSubmit を呼び出す
     reset(); // フォームをリセット
   };

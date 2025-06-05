@@ -111,7 +111,7 @@ const TournamentCategoryList = ({uid,user}:TournamentCategoryListProps) => {
                 match_type: data.match_type,
                 gender: data.gender,
                 weight: data.weight,
-                match_day: new Date().toISOString().split("T")[0],
+                match_day: data.match_day,
         });
 
             if (res.success) {
