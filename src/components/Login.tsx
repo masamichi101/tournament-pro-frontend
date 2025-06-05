@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod"
 import { signIn } from "next-auth/react";
 import LoadingModal from "./modal/LoadingModal";
+import toast from "react-hot-toast";
 
 // 入力データの検証ルールを定義
 const schema = z.object({
@@ -41,14 +42,14 @@ const Login = () => {
       .then((result) => {
         if (result?.error) {
           // エラーがある場合、エラーメッセージを表示
-          alert("ログインに失敗しました")
+          toast.error("ログインに失敗しました: " + result.error);
         } else {
           // トップページにリダイレクト
           window.location.href = "/"
         }
       })
       .catch((error) => {
-        alert("ログインに失敗しました")
+        toast.error("ログイン中にエラーが発生しました: " + error.message);
       })
       .finally(() => {
         setIsLoading(false)
@@ -63,7 +64,7 @@ const Login = () => {
       <section className="account d-flex justify-content-center">
         <div className="account__center  padding-y-120 flx-align">
           <div className="account-content">
-            <Link scroll={false} href="/" className="logo mb-64">
+            <Link scroll={false} href="/" className="logo mb-64 d-flex justify-content-center">
               <img
                 src="/assets/images/logo/logo.png"
                 alt=""
