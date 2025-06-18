@@ -51,6 +51,8 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
     //onWinnerSelect,
     //onMatchOrderSelect,
   }) => {
+  console.log("previousLevelPlayers", previousLevelPlayers);
+  console.log("winnerDisable", winnerDisable);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,6 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
   useEffect(() => {
     // 4分50秒（290秒）後にモーダルを閉じる
     const timeoutId = setTimeout(() => {
-      console.log("⏱ モーダルを自動で閉じます");
       onClose();
     }, 290000); // 290,000ms = 4分50秒
 
@@ -104,8 +105,16 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
 
         if (success && matchData) {
           setMatchId(String(matchData.id));
-          const winnerPlayer = previousLevelPlayers.find(player => player && player.id === matchData.winner?.id);
-          setWinner(winnerPlayer?.id || "");
+          if (matchData.no_winner === true) {
+            setWinner(-1);
+            setTempWinner(-1);
+            setTempLoser(null);
+          } else {
+            const winnerPlayer = previousLevelPlayers.find(
+              (player) => player && player.id === matchData.winner?.id
+            );
+            setWinner(winnerPlayer?.id || "");
+          }
           setMat(matchData.mat || 0);
           setMatchOrder(matchData.match_order || 0);
           setScores({
@@ -147,20 +156,7 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
     handleWinnerChange({ target: { value: "" } } as React.ChangeEvent<HTMLSelectElement>);
   };
 
-  const handleMatchOrderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
 
-    // 🔹 バリデーションを実行
-    const result = schema.safeParse({ matchOrder: value });
-
-    if (!result.success) {
-      setError(result.error.errors[0].message); // 🔹 エラーメッセージを設定
-      setMatchOrder(null); // 🔹 無効な値の場合は空にする
-    } else {
-      setError(""); // 🔹 エラーをクリア
-      setMatchOrder(result.data.matchOrder); // 🔹 有効な値をセット
-    }
-  };
 
 
   const handleSave = () => {
@@ -185,7 +181,13 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
       decision,
       match_time: `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`,
       live: false,
+      no_winner: winner === -1 ? true : false, // 🔴 勝者なし（両者反則負け）の場合
     };
+    console.log("matchData", matchData);
+    console.log("tempWinner", tempWinner);
+    console.log("tempLoser", tempLoser);
+
+
 
 
     //onWinnerSelect(tempWinner, tempLoser); // 勝者と敗者を親コンポーネントに渡す
@@ -196,23 +198,31 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
   };
 
   const handleWinnerChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedWinner = Number(e.target.value);
+    const selectedValue = e.target.value;
 
-    // 🎯 修正：勝者なしの場合は null にする
-    if (!selectedWinner || e.target.value === "none") {
-        setTempWinner(null);
-        setTempLoser(null);
-        return;
+    if (selectedValue === "-1") {
+      // 🔴 勝者なし（両者反則負け）
+      setWinner(-1);
+      setTempWinner(-1);
+      setTempLoser(null);
+    } else if (selectedValue === "") {
+      // 🟡 「選択してください」が選ばれた場合 → null にする
+      setWinner(null);
+      setTempWinner(null);
+      setTempLoser(null);
+    } else {
+      // 🟢 有効な選手が選ばれた場合
+      const selectedId = Number(selectedValue);
+      setWinner(selectedId);
+      setTempWinner(selectedId);
+      const loserPlayer = previousLevelPlayers.find((p) => p?.id !== selectedId);
+      setTempLoser(loserPlayer?.id || null);
     }
-
-
-    setTempWinner(selectedWinner);
-
-    const safePreviousLevelPlayers = (previousLevelPlayers || []).filter(player => player !== null);
-    const loserPlayer = safePreviousLevelPlayers.find(player => player?.id !== selectedWinner) || null;
-    setTempLoser(loserPlayer?.id || null);
   };
-  const isDisabledDueToPlaceholder = previousLevelPlayers.some(p => p?.id === -1);
+
+  // 例：nullだけ除外して判断したい場合
+  const isDisabledDueToPlaceholder = previousLevelPlayers.every(p => !p || p.id === null);
+
 
 
 
@@ -277,23 +287,21 @@ export const MatchDetailModal: React.FC<MatchDetailModalProps> = ({
         {winnerDisable && <p className="text-danger" style={{ fontSize: "12px" }}>この欄は上位の対戦をリセットして変更してくだい</p>}
         <select
           className={`modal-select ${isDisabledDueToPlaceholder ? "opacity-50" : ""}`}
-          value={winner || ""}
-          onChange={(e) => {
-            const selectedId = Number(e.target.value); // `id` を数値型で取得
-            setWinner(selectedId);
-            handleWinnerChange(e); // `player.id` を渡す
-          }} // 勝者が選択されたら呼び出す
+          value={String(winner ?? "")}
+
+          onChange={handleWinnerChange}// 勝者が選択されたら呼び出す
           disabled={winnerDisable || isDisabledDueToPlaceholder}
         >
           <option value="">選択してください</option>
-          {previousLevelPlayers.map((player, index) =>
-            player ? (
-              <option key={index} value={player.id}>
-                {player.name}
-              </option>
-            ) : null
-          )}
-          <option value="none">勝者なし</option>
+          {previousLevelPlayers
+          .filter((player) => player && player.id !== -1)
+          .map((player, index) => (
+            <option key={index} value={player.id}>
+              {player.name}
+            </option>
+          ))}
+          <option value="-1">勝者なし（両者反則負け）</option>
+
         </select>
 
 

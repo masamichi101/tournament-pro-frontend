@@ -333,13 +333,15 @@ const StepLadderGenerator = ({
 
       // 現在のマッチに割り当てられているプレイヤーを取得
       const currentAssignedPlayer = stepLadderData[level][matchCount];
+      console.log("現在割り当てられているプレイヤー:", currentAssignedPlayer);
 
+      const { loser, ...playerWithoutLoser } = player || {};
       // トーナメントデータを更新
       setStepLadderData((prevData: any) => ({
         ...prevData,
         [level]: {
           ...prevData[level],
-          [matchCount]: player, // 選択されたプレイヤーをセット
+          [matchCount]: player ? playerWithoutLoser : null,
         },
       }));
       // `selectedPlayers` を更新
@@ -547,7 +549,7 @@ const StepLadderGenerator = ({
 
   const handleUpdateMatch = async (matchData) => {
     if (!selectedMatchDetail) return;
-
+    console.log("handleUpdateMatch 呼び出し", matchData, selectedMatchDetail);
     try {
       const requestData = {
         ...matchData,
@@ -582,14 +584,45 @@ const StepLadderGenerator = ({
           return;
         }
 
+        if (winner === -1) {
+          setStepLadderData((prevData) => {
+            if (!prevData[previousLevelKey]) return prevData;
+
+            const updatedPreviousLevel = { ...prevData[previousLevelKey] };
+
+            return {
+              ...prevData,
+              [previousLevelKey]: updatedPreviousLevel,
+              [selectedMatchDetail.level]: {
+                ...prevData[selectedMatchDetail.level],
+                [selectedMatchDetail.match]: {
+                  id: -1,
+                  name: "勝者なし",
+                  mat: matchData.mat,
+                  match_order: matchData.match_order,
+                },
+              },
+            };
+          });
+
+          setSelectedMatchDetail((prev) => ({
+            ...prev,
+            winner: -1,
+          }));
+
+          return;
+        }
+
 
         const winnerPlayer = selectedMatchDetail.previousLevelPlayers?.find(
           (player) => Number(player?.id) === Number(winner)
         ) || null;
+        console.log("winnerPlayer:", winnerPlayer);
 
         const loserPlayer = selectedMatchDetail.previousLevelPlayers?.find(
           (player) => Number(player?.id) === Number(loser)
         ) || null;
+        console.log("loserPlayer:", loserPlayer);
 
 
 
@@ -603,13 +636,6 @@ const StepLadderGenerator = ({
             if (winner === previousWinner) return prevLoserIds;
             return [...prevLoserIds.filter((id) => id !== winner), loser].filter(Boolean);
           });
-
-          setParticipants((prevParticipants) =>
-            prevParticipants.map((participant) => ({
-              ...participant,
-              loser: participant.id === matchData.loser && previousWinner !== winner ? true : participant.loser,
-            }))
-          );
         }
 
         // ✅ `stepLadderData` を更新
@@ -624,19 +650,8 @@ const StepLadderGenerator = ({
             if (!original) return;
 
             const player = { ...original }; // 安全にコピー
-            const playerId = player.id;
 
-            if (winner === null) {
-              player.loser = false;
-            } else {
-              if (playerId === winner) {
-                player.loser = false; // 勝者 → loser = false
-              } else if (playerId === loser && previousWinner !== winner) {
-                player.loser = true; // 敗者 → loser = true
-              } else {
-                // 変更されてないプレイヤーの loser フラグは維持
-              }
-            }
+
 
             updatedPreviousLevel[matchKey] = player;
           });
@@ -647,13 +662,11 @@ const StepLadderGenerator = ({
                   ...loserPlayer,
                   mat: matchData.mat,
                   match_order: matchData.match_order,
-                  loser: true,
                 }
               : {
                   ...winnerPlayer,
                   mat: matchData.mat,
                   match_order: matchData.match_order,
-                  loser: false,
                 };
 
 
@@ -704,9 +717,6 @@ const StepLadderGenerator = ({
     setIsDetailModalOpen(false);
     setSelectedMatchDetail(null);
   };
-
-
-  const effectiveLoserIds = stepLadderType === "3位決定戦" ? thirdLoserIds : loserIds;
 
 
 
@@ -807,7 +817,6 @@ const StepLadderGenerator = ({
                   <div
                       key={matchCount}
                       className={`
-                        ${player && effectiveLoserIds.some((entry) => entry.id === player.id) ? "loser" : ""}
                         ${confirm && levelIndex === 0 && !player ? "player-null" : ""}
                       `}
                     >
@@ -815,7 +824,6 @@ const StepLadderGenerator = ({
                         className={`match
                           ${player?.id ? "winner-border-head" : ""}
                           ${player?.id && stepLadderData[`${parseInt(level.replace("回戦", "")) + 1}回戦`]?.[Math.floor((parseInt(matchCount) + 1) / 2)]?.id === player.id ? "winner-border" : ""}
-                          ${player?.id && effectiveLoserIds.includes(player.id) ? "loser" : ""}
                         `}
                       >
 

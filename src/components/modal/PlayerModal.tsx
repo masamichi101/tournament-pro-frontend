@@ -24,6 +24,7 @@ const PlayerModal: React.FC<PlayerModalProps> = ({
     .filter((player) =>
       player.name.toLowerCase().includes(searchQuery.toLowerCase()) // 検索フィルタ
     );
+    console.log("Filtered Players:", filteredPlayers);
 
   return (
     <div className="modal-overlay">
