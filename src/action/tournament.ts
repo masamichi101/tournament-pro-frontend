@@ -549,6 +549,7 @@ export interface UpdateStepLadder {
   players_order: Record<string, string[]>;
 }
 export const updateStepLadder = async ({  accessToken,stepLadderUid, players_order,}: UpdateStepLadder) => {
+
   const body = JSON.stringify({
     players_order:players_order,
   })
@@ -795,6 +796,7 @@ export interface Match {
   match_time?: string;
   live?: boolean;
   final?: boolean;
+  no_winner: boolean;
 }
 
 export const getMatch = async ({
