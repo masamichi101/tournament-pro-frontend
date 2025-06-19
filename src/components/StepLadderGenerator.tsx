@@ -553,6 +553,7 @@ const StepLadderGenerator = ({
     try {
       const requestData = {
         ...matchData,
+        winner: matchData.winner === -1 ? null : matchData.winner,
         accessToken: user.accessToken, // ✅ `user.accessToken` をセット
       };
 
